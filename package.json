@@ -1,0 +1,20 @@
+{
+  "name": "final-project",
+  "version": "1.0.0",
+  "description": "Final solidity project with frontend client",
+  "author": "Smart Contracts; TU Wien",
+  "scripts": {
+    "dev": "truffle develop",
+    "test": "truffle test",
+    "coco": "npm run compile && npm run copy",
+    "compile": "truffle compile",
+    "copy": "copyfiles -u 2 \"build/contracts/*.json\" frontend/src/abi"
+  },
+  "dependencies": {
+    "truffle": "^5.8.1",
+    "truffle-assertions": "^0.9.2"
+  },
+  "devDependencies": {
+    "copyfiles": "^2.4.1"
+  }
+}
