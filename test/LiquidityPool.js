@@ -34,6 +34,17 @@ contract("Liquidity Pool", async accounts => {
     await deployAndInit();
   });
 
+  
+  it("create pool with non-contract address reverts", async () => {
+    await truffleAssert.reverts(LiquidityPool.new(liquidityProvider1, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
+    await truffleAssert.reverts(LiquidityPool.new(silverToken.address, liquidityProvider1, "Liquidity Pool Shares", "LP-GLD-SLV"));
+  });
+
+  it("create pool with the same addresses reverts", async () => {
+    await truffleAssert.reverts(LiquidityPool.new(silverToken.address, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
+  });
+
+
   it("provide initial liquidity works", async () => {
     let amountGold = web3.utils.toBN('200000000000000000');
     let amountSilver = web3.utils.toBN('1000000000000000000');

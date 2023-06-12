@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+
 
 // TODO: keep frontrunning/dynamic nature in mind (min values etc.)
 contract LiquidityPool is ERC20 {
@@ -22,8 +24,11 @@ contract LiquidityPool is ERC20 {
         string memory _liqudityTokenName, 
         string memory _liqudityTokenSymbol
         ) ERC20(_liqudityTokenName, _liqudityTokenSymbol) {
-        // TODO: validation (not zero address, must have code deployed)
+        require(_tokenA != address(0) && _tokenB != address(0), "Tokens cannot have the zero address");
+        require(Address.isContract(_tokenA) && Address.isContract(_tokenB), "Tokens must be contracts");
+        require(_tokenA != _tokenB, "TokenA must be different from TokenB");
         // TODO: Introspection if really ERC20
+
         tokenA = IERC20(_tokenA);
         tokenB = IERC20(_tokenB);
     }
