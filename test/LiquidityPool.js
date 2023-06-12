@@ -23,7 +23,7 @@ contract("Liquidity Pool Test", async accounts => {
     await goldToken.transfer(liquidityProvider1, web3.utils.toBN('2000000000000000000'));
     await silverToken.transfer(liquidityProvider1, web3.utils.toBN('2000000000000000000'));
 
-    pool = await LiquidityPool.new(goldToken.address,silverToken.address);
+    pool = await LiquidityPool.new(goldToken.address,silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV");
   }
 
   beforeEach("deploy and init", async () => {
