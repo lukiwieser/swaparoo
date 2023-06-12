@@ -8,7 +8,7 @@ contract("Liquidity Pool", async accounts => {
   let goldToken;
   let silverToken;
 
-    let pool;
+  let pool;
 
   let owner = accounts[0];
   let liquidityProvider1 = accounts[1];
@@ -34,7 +34,7 @@ contract("Liquidity Pool", async accounts => {
     await deployAndInit();
   });
 
-  it("provide initial liquidity", async () => {
+  it("provide initial liquidity works", async () => {
     let amountGold = web3.utils.toBN('200000000000000000');
     let amountSilver = web3.utils.toBN('1000000000000000000');
     let expectedShares = web3.utils.toBN("447213595499957939");
@@ -48,7 +48,7 @@ contract("Liquidity Pool", async accounts => {
     assert((await pool.balanceOf(liquidityProvider1)).eq(expectedShares), "Wrong number of expected Shares");
   });
 
-  it("remove liqudity liquidity", async () => {
+  it("remove liquidity works", async () => {
     let amountGold = web3.utils.toBN('200000000000000000');
     let amountSilver = web3.utils.toBN('1000000000000000000');
 
@@ -81,12 +81,12 @@ contract("Liquidity Pool", async accounts => {
     assert(amountSharesBefore.sub(sharesToRemove).eq(amountSharesAfter), "Amount of shares is wrong");
   });
 
-  it("swap tokenB to tokenA works", async () => {
+  it("swap tokenB to tokenA yields correct balances", async () => {
     // tokenA = Gold, tokenB = Silver
-    let amountGold    = web3.utils.toBN('200000000000000000');
-    let amountSilver = web3.utils.toBN('1000000000000000000');
 
     // Add liquidity
+    let amountGold    = web3.utils.toBN('200000000000000000');
+    let amountSilver = web3.utils.toBN('1000000000000000000');
     await goldToken.approve(pool.address, amountGold, {from: liquidityProvider1});
     await silverToken.approve(pool.address, amountSilver, {from: liquidityProvider1});
     await pool.provideLiquidity(amountGold,amountSilver, {from: liquidityProvider1});
@@ -111,7 +111,7 @@ contract("Liquidity Pool", async accounts => {
     assert(balanceGoldAfter.eq(balanceGoldExpected), "Silver balance is wrong");
   });
 
-  it("swap tokenA to tokenB works", async () => {
+  it("swap tokenA to tokenB yields correct balances", async () => {
     // tokenA = Gold, tokenB = Silver
 
     // Add liquidity
@@ -170,7 +170,7 @@ contract("Liquidity Pool", async accounts => {
     assert(kAfter.eq(kBefore), "k must stay the same");
   });
 
-  it("liqudidty tokens act like erc20", async () => {
+  it("liquidity tokens can be transfered", async () => {
     // Add liquidity
     const amountGold   = web3.utils.toBN('200000000000000000');
     const amountSilver = web3.utils.toBN('1000000000000000000');
@@ -188,20 +188,5 @@ contract("Liquidity Pool", async accounts => {
     assert(liqudityTokensAfter2.eq(liqudityTokensBefore1), "provider2 should have all tokens of provider1");
     assert(liqudityTokensAfter1.eq(web3.utils.toBN("0")), "provider1 should not have any tokens");
   });
-
-
-  /*
-  it("deploying test tokens works", async () => {
-    let actual = await goldToken.totalSupply();
-    let expected = web3.utils.toBN('10000000000000000000');
-    assert(actual.eq(expected));
-
-    let ownerBalance = ;
-
-    let liquidityProvider1Balance = await goldToken.balanceOf(liquidityProvider1);
-    console.log(liquidityProvider1Balance.toString());
-  });
-  */
-
 });
 
