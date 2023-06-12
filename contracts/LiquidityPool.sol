@@ -16,9 +16,6 @@ contract LiquidityPool is ERC20 {
     uint private k = 0;
     bool public intialTokensProvided = false;
 
-    //mapping(address => uint256) private shares;
-    //uint numTotalShares = 0;
-
     constructor(
         address _tokenA, 
         address _tokenB, 
@@ -31,6 +28,9 @@ contract LiquidityPool is ERC20 {
         tokenB = IERC20(_tokenB);
     }
 
+    function getK() external view returns (uint) {
+        return k;
+    }
 
     function provideLiquidity(uint _amountTokenA, uint _amountTokenB) external {
         require(_amountTokenA > 0 && _amountTokenB > 0, "number of tokens must be greater than 0");
@@ -60,10 +60,40 @@ contract LiquidityPool is ERC20 {
         k = amountTokenA * amountTokenB;
     }
 
-    /*
-    function swap(uint _amountTokenIn, address _tokenIn) external {
-        require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "tokenIn not supported by this pool")
+    function removeLiquidity(uint _numShares) external {
+        // be aware of integer division!
+        // mathematically dx*(s/T) migth seem the same as (dx*s)/T, but the first one will always yield 0 due to integer divsion.
+        uint decreaseTokenA = (amountTokenA * _numShares) / totalSupply();
+        uint decreaseTokenB = (amountTokenB * _numShares) / totalSupply();
 
+        // adjust shares
+        _burn(msg.sender, _numShares);
+
+        // update balances 
+        tokenA.transfer(msg.sender, decreaseTokenA);
+        tokenB.transfer(msg.sender, decreaseTokenB);
+        amountTokenA -= decreaseTokenA;
+        amountTokenB -= decreaseTokenB;
+        k = amountTokenA * amountTokenB;
     }
-    */
+
+    
+    function swap(uint _amountTokenIn, address _tokenIn) external {
+        require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "tokenIn not supported by this pool");
+
+        if(_tokenIn == address(tokenA)) {
+            uint amountTokenOut = (amountTokenB * _amountTokenIn) / (amountTokenA + _amountTokenIn);
+            tokenA.transferFrom(msg.sender, address(this), _amountTokenIn);
+            tokenB.transfer(msg.sender, amountTokenOut);
+            amountTokenA += _amountTokenIn;
+            amountTokenB -= amountTokenOut;
+        } else {
+            uint amountTokenOut = (amountTokenA * _amountTokenIn) / (amountTokenB + _amountTokenIn);
+            tokenB.transferFrom(msg.sender, address(this), _amountTokenIn);
+            tokenA.transfer(msg.sender, amountTokenOut);
+            amountTokenB += _amountTokenIn;
+            amountTokenA -= amountTokenOut;
+        }
+        // some checks to preserve k?
+    }
 }
