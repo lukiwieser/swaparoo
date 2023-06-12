@@ -26,7 +26,7 @@ contract LiquidityPool {
     }
 
 
-    function provideLiqudidity(uint _amountTokenA, uint _amountTokenB) internal {
+    function provideLiquidity(uint _amountTokenA, uint _amountTokenB) external {
         require(_amountTokenA > 0 && _amountTokenB > 0, "number of tokens must be greater than 0");
         
         // TODO: check if approved/allowance
@@ -53,8 +53,10 @@ contract LiquidityPool {
         amountTokenA += _amountTokenA;
         amountTokenB += _amountTokenB;
         k = amountTokenA * amountTokenB;
+    }
 
-        shares[msg.sender] += numShares;
+    function balanceOf(address addr) external view returns (uint) {
+        return shares[addr];
     }
 
     /*
