@@ -4,7 +4,7 @@ const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");
 const LiquidityPool = artifacts.require("LiquidityPool");
 
-contract("Liquidity Pool Test", async accounts => {
+contract("Liquidity Pool", async accounts => {
   let goldToken;
   let silverToken;
 
@@ -13,6 +13,8 @@ contract("Liquidity Pool Test", async accounts => {
   let owner = accounts[0];
   let liquidityProvider1 = accounts[1];
   let swapper1 = accounts[2];
+
+  let liquidityProvider2 = accounts[3];
 
   async function deployAndInit() {
     // deployed behaves like a singleton. It will look if there is already an instance of the contract deployed to the blockchain via deployer.deploy. The information about which contract has which address on which network is stored in the build folder. new will always create a new instance. [https://ethereum.stackexchange.com/questions/42094/should-i-use-new-or-deployed-in-truffle-unit-tests]
@@ -166,6 +168,25 @@ contract("Liquidity Pool Test", async accounts => {
     const kAfter = await pool.getK();
 
     assert(kAfter.eq(kBefore), "k must stay the same");
+  });
+
+  it("liqudidty tokens act like erc20", async () => {
+    // Add liquidity
+    const amountGold   = web3.utils.toBN('200000000000000000');
+    const amountSilver = web3.utils.toBN('1000000000000000000');
+    await goldToken.approve(pool.address, amountGold, {from: liquidityProvider1});
+    await silverToken.approve(pool.address, amountSilver, {from: liquidityProvider1});
+    await pool.provideLiquidity(amountGold,amountSilver, {from: liquidityProvider1});
+    
+    // transfer tokens
+    const liqudityTokensBefore1 = await pool.balanceOf(liquidityProvider1);
+    await pool.transfer(liquidityProvider2, liqudityTokensBefore1, {from: liquidityProvider1});
+
+    const liqudityTokensAfter1 = await pool.balanceOf(liquidityProvider1);
+    const liqudityTokensAfter2 = await pool.balanceOf(liquidityProvider2);
+
+    assert(liqudityTokensAfter2.eq(liqudityTokensBefore1), "provider2 should have all tokens of provider1");
+    assert(liqudityTokensAfter1.eq(web3.utils.toBN("0")), "provider1 should not have any tokens");
   });
 
 

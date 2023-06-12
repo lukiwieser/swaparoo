@@ -35,7 +35,6 @@ contract LiquidityPool is ERC20 {
     function provideLiquidity(uint _amountTokenA, uint _amountTokenB) external {
         require(_amountTokenA > 0 && _amountTokenB > 0, "number of tokens must be greater than 0");
         
-        // TODO: check if approved/allowance
         // TODO: revisit intialTokensProvided
 
         // determine shares
@@ -94,6 +93,5 @@ contract LiquidityPool is ERC20 {
             amountTokenB += _amountTokenIn;
             amountTokenA -= amountTokenOut;
         }
-        // some checks to preserve k?
     }
 }
