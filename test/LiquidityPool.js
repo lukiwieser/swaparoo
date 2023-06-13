@@ -199,5 +199,35 @@ contract("Liquidity Pool", async accounts => {
     assert(liqudityTokensAfter2.eq(liqudityTokensBefore1), "provider2 should have all tokens of provider1");
     assert(liqudityTokensAfter1.eq(web3.utils.toBN("0")), "provider1 should not have any tokens");
   });
+
+  it("transfer tokens to pool has no influence on swap", async () => {
+    // Add liquidity
+    const amountGold   = web3.utils.toBN('200000000000000000');
+    const amountSilver = web3.utils.toBN('1000000000000000000');
+    await goldToken.approve(pool.address, amountGold, {from: liquidityProvider1});
+    await silverToken.approve(pool.address, amountSilver, {from: liquidityProvider1});
+    await pool.provideLiquidity(amountGold,amountSilver, {from: liquidityProvider1});
+    
+    // record values before swap
+    const balanceSilverBefore = await silverToken.balanceOf(swapper1);
+
+    // transfer tokens to pool
+    await goldToken.transfer(pool.address, web3.utils.toBN('10000000000000000'))
+
+    // Swap                              
+    const amountTokenIn = web3.utils.toBN('20000000000000000');
+    const addressTokenIn = goldToken.address;
+    await goldToken.approve(pool.address, amountTokenIn, {from: swapper1});
+    await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1});
+
+    // record values after swap
+    const balanceSilverAfter = await silverToken.balanceOf(swapper1);
+
+    // check if balance is the same as expected
+    // transfering tokens to the pool, could influence action like swapping, if not accounted for!
+    const amoutTokenOutExpected = web3.utils.toBN('90909090909090909');
+    const balanceSilverExpected = balanceSilverBefore.add(amoutTokenOutExpected);
+    assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance wrong");
+  });
 });
 
