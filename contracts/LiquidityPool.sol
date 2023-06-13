@@ -32,9 +32,27 @@ contract LiquidityPool is ERC20 {
         tokenB = IERC20(_tokenB);
     }
 
+    function getAmountTokenA() external view returns (uint) {
+        return amountTokenA;
+    }
+
+    function getAmountTokenB() external view returns (uint) {
+        return amountTokenB;
+    }
+
+    function getAddressTokenA() external view returns (address) {
+        return address(tokenA);
+    }
+
+    function getAddressTokenB() external view returns (address) {
+        return address(tokenB);
+    }
+
     function getK() external view returns (uint) {
         return k;
     }
+
+    // TODO: spot-price / expected-price?
 
     function provideLiquidity(uint _amountTokenA, uint _amountTokenB) external {
         require(_amountTokenA > 0 && _amountTokenB > 0, "number of tokens must be greater than 0");
