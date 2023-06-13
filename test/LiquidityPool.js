@@ -163,7 +163,7 @@ contract("Liquidity Pool", async accounts => {
       assert(liqudityTokensAfter1.eq(web3.utils.toBN("0")), "provider1 should not have any tokens");
     });
 
-    it("removing liquidity when no liquidity was provided reverts", async () => {
+    it("remove liquidity when no liquidity was provided reverts", async () => {
       const sharesToRemove = web3.utils.toBN("1");
       await truffleAssert.reverts(
         pool.removeLiquidity(sharesToRemove, {from: liquidityProvider1}),
