@@ -53,6 +53,7 @@ contract LiquidityPool is ERC20 {
             );
         } else {
             numShares = Math.sqrt(_amountTokenA * _amountTokenB);
+            intialTokensProvided = true;
         }
         _mint(msg.sender, numShares);
        
