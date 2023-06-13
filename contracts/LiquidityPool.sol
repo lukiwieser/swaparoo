@@ -64,6 +64,8 @@ contract LiquidityPool is ERC20 {
     }
 
     function removeLiquidity(uint _numShares) external {
+        require(totalSupply() > 0, "Cannot remove liquidity if none is present");
+
         // be aware of integer division!
         // mathematically dx*(s/T) migth seem the same as (dx*s)/T, but the first one will always yield 0 due to integer divsion.
         uint decreaseTokenA = (amountTokenA * _numShares) / totalSupply();

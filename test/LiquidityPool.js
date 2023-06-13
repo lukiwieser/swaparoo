@@ -162,6 +162,14 @@ contract("Liquidity Pool", async accounts => {
       assert(liqudityTokensAfter2.eq(liqudityTokensBefore1), "provider2 should have all tokens of provider1");
       assert(liqudityTokensAfter1.eq(web3.utils.toBN("0")), "provider1 should not have any tokens");
     });
+
+    it("removing liquidity when no liquidity was provided reverts", async () => {
+      const sharesToRemove = web3.utils.toBN("1");
+      await truffleAssert.reverts(
+        pool.removeLiquidity(sharesToRemove, {from: liquidityProvider1}),
+        "Cannot remove liquidity if none is present"
+      );
+    });
   });
 
   describe('#swap', function () {
