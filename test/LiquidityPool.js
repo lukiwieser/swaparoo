@@ -294,6 +294,5 @@ contract("Liquidity Pool", async accounts => {
       assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance wrong");
     });
   });
-  
 });
 
