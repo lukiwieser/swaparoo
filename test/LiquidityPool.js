@@ -72,8 +72,7 @@ contract("Liquidity Pool", async accounts => {
       // further liqudity (ratio 1 : 5 aka 2 : 10)
       await _provideLiquidity(web3.utils.toBN('10000000000000000'), goldToken, web3.utils.toBN('50000000000000000'), silverToken, pool, liquidityProvider1)
     });
-  
-  
+
     it("provide further liqudity with incorrect ratio reverts", async () => {
       async function _provideLiquidity(_amountTokenA, _contractTokenA, _amountTokenB, _contractTokenB, _pool, _account) {
         await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
@@ -122,6 +121,27 @@ contract("Liquidity Pool", async accounts => {
       assert(deltaGoldOfPool.eq(expectedDeltaGoldOfPool), "Delta of Gold-Token is wrong");
       assert(deltaSilverOfPool.eq(expectedDeltaSilverOfPool), "Delta of Silver-Token is wrong");
       assert(amountSharesBefore.sub(sharesToRemove).eq(amountSharesAfter), "Amount of shares is wrong");
+    });
+
+    it("remove all liquidity & provide again works", async () => {
+      async function _provideLiquidity(_amountTokenA, _contractTokenA, _amountTokenB, _contractTokenB, _pool, _account) {
+        await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
+        await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
+        await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
+      }
+      
+      // initial liquidity (ratio 2 : 10)
+      await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1);
+      
+      // further liquidity (ratio 1 : 5 aka 2 : 10)
+      await _provideLiquidity(web3.utils.toBN('10000000000000000'), goldToken, web3.utils.toBN('50000000000000000'), silverToken, pool, liquidityProvider1);
+      
+      // remove all liquidity
+      const shares = await pool.balanceOf(liquidityProvider1);
+      await pool.removeLiquidity(shares, {from: liquidityProvider1});
+  
+      // add liquidity again
+      await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1);
     });
 
     it("liquidity tokens can be transfered", async () => {
@@ -266,5 +286,6 @@ contract("Liquidity Pool", async accounts => {
       assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance wrong");
     });
   });
+  
 });
 

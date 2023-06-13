@@ -16,7 +16,6 @@ contract LiquidityPool is ERC20 {
     uint public amountTokenA = 0;
     uint public amountTokenB = 0; 
     uint private k = 0;
-    bool public intialTokensProvided = false;
 
     constructor(
         address _tokenA, 
@@ -44,7 +43,7 @@ contract LiquidityPool is ERC20 {
 
         // determine shares
         uint numShares;
-        if(intialTokensProvided) {
+        if(totalSupply() > 0) {
             // s = (dx/X)* T = (dy/Y)*T
             require(amountTokenA * _amountTokenB == amountTokenB * _amountTokenA, "proportion of token increase must equal proportion of reserve: dx/dy == X/Y");
             numShares = Math.min(
@@ -53,7 +52,6 @@ contract LiquidityPool is ERC20 {
             );
         } else {
             numShares = Math.sqrt(_amountTokenA * _amountTokenB);
-            intialTokensProvided = true;
         }
         _mint(msg.sender, numShares);
        
