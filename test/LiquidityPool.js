@@ -44,7 +44,7 @@ contract("Liquidity Pool", async accounts => {
     });
   });
 
-  describe('#liqudity', function () {
+  describe('#liquidity', function () {
     it("provide initial liquidity works", async () => {
       let amountGold = web3.utils.toBN('200000000000000000');
       let amountSilver = web3.utils.toBN('1000000000000000000');

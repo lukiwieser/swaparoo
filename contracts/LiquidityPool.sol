@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-
 // TODO: keep frontrunning/dynamic nature in mind (min values etc.)
 contract LiquidityPool is ERC20 {
     IERC20 public immutable tokenA;
@@ -16,6 +15,10 @@ contract LiquidityPool is ERC20 {
     uint public amountTokenA = 0;
     uint public amountTokenB = 0; 
     uint private k = 0;
+
+    event LiquidityProvided(address liquidityProvider, uint amountTokenA, uint amountTokenB, uint addedShares);
+    event LiquidityRemoved(address liquidityProvider, uint removedShares, uint amountTokenA, uint amountTokenB);
+    event Swap(address user, uint amountTokenIn, address addressTokenIn, uint amountTokenOut, address addressTokenOut);
 
     constructor(
         address _tokenA, 
@@ -79,6 +82,8 @@ contract LiquidityPool is ERC20 {
         amountTokenA += _amountTokenA;
         amountTokenB += _amountTokenB;
         k = amountTokenA * amountTokenB;
+
+        emit LiquidityProvided(msg.sender, _amountTokenA, _amountTokenB, numShares);
     }
 
     function removeLiquidity(uint _numShares) external {
@@ -98,6 +103,8 @@ contract LiquidityPool is ERC20 {
         amountTokenA -= decreaseTokenA;
         amountTokenB -= decreaseTokenB;
         k = amountTokenA * amountTokenB;
+
+        emit LiquidityRemoved(msg.sender, _numShares, decreaseTokenA, decreaseTokenB);
     }
 
     
@@ -110,12 +117,14 @@ contract LiquidityPool is ERC20 {
             tokenB.transfer(msg.sender, amountTokenOut);
             amountTokenA += _amountTokenIn;
             amountTokenB -= amountTokenOut;
+            emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenB));
         } else {
             uint amountTokenOut = (amountTokenA * _amountTokenIn) / (amountTokenB + _amountTokenIn);
             tokenB.transferFrom(msg.sender, address(this), _amountTokenIn);
             tokenA.transfer(msg.sender, amountTokenOut);
             amountTokenB += _amountTokenIn;
             amountTokenA -= amountTokenOut;
+            emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenA));
         }
     }
 }
