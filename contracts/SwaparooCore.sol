@@ -71,4 +71,6 @@ contract SwaparooCore is AccessControlEnumerable {
 
         emit PoolRemoved(poolAddress, tokenA, tokenB);
     }
+
+
 }
