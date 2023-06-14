@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 // there are 2 assets that can be the dividends
 // does not handle receiving of assets
 // simply call distributeDividendsAsset0() and distributeDividendsAsset0() at the location where dividens are received
-// TODO: 
+// TODO: account for rounding errors
 contract DualAssetDividendToken is ERC20 {
     struct Account {
         uint dividendsAsset0;
@@ -29,6 +29,33 @@ contract DualAssetDividendToken is ERC20 {
         asset1 = IERC20(_asset1);
     }
 
+    function payoutDividends() external {
+        updateDividends(msg.sender);
+        uint dividendsAsset0 = accounts[msg.sender].dividendsAsset0;
+        uint dividendsAsset1 = accounts[msg.sender].dividendsAsset1;
+        accounts[msg.sender].dividendsAsset0 = 0;
+        accounts[msg.sender].dividendsAsset1 = 0;
+        asset0.transfer(msg.sender, dividendsAsset0);
+        asset1.transfer(msg.sender, dividendsAsset1);
+    }
+
+    function getAndUpdateDividends() external returns(uint,uint) {
+        updateDividends(msg.sender);
+        return (accounts[msg.sender].dividendsAsset0, accounts[msg.sender].dividendsAsset1);
+    }
+
+    function getDividends() external view returns(uint,uint) {
+        return (accounts[msg.sender].dividendsAsset0, accounts[msg.sender].dividendsAsset1);
+    }
+
+    function distributeDividendsAsset0(uint amount) internal {
+        totalDividendsAsset0 += amount / totalSupply();
+    }
+
+    function distributeDividendsAsset1(uint amount) internal {
+        totalDividendsAsset1 += amount / totalSupply();
+    }
+
     function updateDividends(address account) internal {
         uint newDividends0 = totalDividendsAsset0 - accounts[account].lastDividendsAsset0;
         uint newDividends1 = totalDividendsAsset1 - accounts[account].lastDividendsAsset1;
@@ -44,14 +71,6 @@ contract DualAssetDividendToken is ERC20 {
         }
     }
 
-    function distributeDividendsAsset0(uint amount) internal {
-        totalDividendsAsset0 += amount / totalSupply();
-    }
-
-    function distributeDividendsAsset1(uint amount) internal {
-        totalDividendsAsset1 += amount / totalSupply();
-    }
-
     // update dividends if shares of account change
     // Assumption: shares of a accounts token stays the same during adding up their dividends
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
@@ -62,24 +81,5 @@ contract DualAssetDividendToken is ERC20 {
         if(to != address(0)) {
             updateDividends(to);
         }
-    }
-
-    function getDividends() external view returns(uint,uint) {
-        return (accounts[msg.sender].dividendsAsset0, accounts[msg.sender].dividendsAsset1);
-    }
-
-    function getAndUpdateDividends() external returns(uint,uint) {
-        updateDividends(msg.sender);
-        return (accounts[msg.sender].dividendsAsset0, accounts[msg.sender].dividendsAsset1);
-    }
-
-    function payoutDividends() external {
-        updateDividends(msg.sender);
-        uint dividendsAsset0 = accounts[msg.sender].dividendsAsset0;
-        uint dividendsAsset1 = accounts[msg.sender].dividendsAsset1;
-        accounts[msg.sender].dividendsAsset0 = 0;
-        accounts[msg.sender].dividendsAsset1 = 0;
-        asset0.transfer(msg.sender, dividendsAsset0);
-        asset1.transfer(msg.sender, dividendsAsset1);
     }
 }
