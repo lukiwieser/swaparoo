@@ -9,21 +9,25 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 // there are 2 assets that can be the dividends
 // does not handle receiving of assets
 // simply call distributeDividendsAsset0() and distributeDividendsAsset0() at the location where dividens are received
+// TODO: 
 contract DualAssetDividendToken is ERC20 {
     struct Account {
         uint dividendsAsset0;
-        uint lastDividendsAsset0;
         uint dividendsAsset1;
+        uint lastDividendsAsset0;
         uint lastDividendsAsset1;
     }
 
-    IERC20 asset0;
-    IERC20 asset1;
+    IERC20 immutable asset0;
+    IERC20 immutable asset1;
     uint totalDividendsAsset0; // as percentages
-    uint totalDividendsAsset1; 
+    uint totalDividendsAsset1; // as percentages
     mapping(address => Account) accounts;
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
+    constructor(address _asset0, address _asset1, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
+        asset0 = IERC20(_asset0);
+        asset1 = IERC20(_asset1);
+    }
 
     function updateDividends(address account) internal {
         uint newDividends0 = totalDividendsAsset0 - accounts[account].lastDividendsAsset0;
@@ -32,7 +36,7 @@ contract DualAssetDividendToken is ERC20 {
         uint owingDividendsAsset1 = balanceOf(account) * newDividends1;
         if(owingDividendsAsset0 > 0) {
             accounts[account].dividendsAsset0 += owingDividendsAsset0;
-            accounts[account].lastDividendsAsset1 = totalDividendsAsset0;
+            accounts[account].lastDividendsAsset0 = totalDividendsAsset0;
         }
         if(owingDividendsAsset1 > 0) {
             accounts[account].dividendsAsset1 += owingDividendsAsset1;
@@ -49,6 +53,7 @@ contract DualAssetDividendToken is ERC20 {
     }
 
     // update dividends if shares of account change
+    // Assumption: shares of a accounts token stays the same during adding up their dividends
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
         if(from != address(0)) {
@@ -57,6 +62,15 @@ contract DualAssetDividendToken is ERC20 {
         if(to != address(0)) {
             updateDividends(to);
         }
+    }
+
+    function getDividends() external view returns(uint,uint) {
+        return (accounts[msg.sender].dividendsAsset0, accounts[msg.sender].dividendsAsset1);
+    }
+
+    function getAndUpdateDividends() external returns(uint,uint) {
+        updateDividends(msg.sender);
+        return (accounts[msg.sender].dividendsAsset0, accounts[msg.sender].dividendsAsset1);
     }
 
     function payoutDividends() external {
