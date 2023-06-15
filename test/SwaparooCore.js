@@ -15,6 +15,7 @@ contract("SwaparooCore", async accounts => {
   // accounts:
   let owner = accounts[0];
   let billy = accounts[1]
+  let alice = accounts[2]
 
   async function deployAndInit() {
     // deployed behaves like a singleton. It will look if there is already an instance of the contract deployed to the blockchain via deployer.deploy. The information about which contract has which address on which network is stored in the build folder. new will always create a new instance. [https://ethereum.stackexchange.com/questions/42094/should-i-use-new-or-deployed-in-truffle-unit-tests]
@@ -52,6 +53,13 @@ contract("SwaparooCore", async accounts => {
         }, 'OwnerRemoved should be emitted with correct parameters');
 
         assert(!await swaparooCore.isOwner(owner));
+    });
+
+    it("others cannot add owners", async () => {
+      await truffleAssert.reverts(
+        swaparooCore.addOwner(billy, {from: alice}),
+        "Caller is not a owner"
+      );
     });
 
     it("owner cannot renounce, if they are the only owner", async () => {
