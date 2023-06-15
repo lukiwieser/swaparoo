@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
 // TODO: keep frontrunning/dynamic nature in mind (min values etc.)
-contract LiquidityPool is ERC20 {
+contract SwaparooPool is ERC20 {
     IERC20 public immutable tokenA;
     IERC20 public immutable tokenB;
     // save amount of tokens addtionally in this contract, 

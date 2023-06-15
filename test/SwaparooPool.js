@@ -2,9 +2,9 @@ const truffleAssert = require('truffle-assertions');
 
 const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");
-const LiquidityPool = artifacts.require("LiquidityPool");
+const SwaparooPool = artifacts.require("SwaparooPool");
 
-contract("Liquidity Pool", async accounts => {
+contract("SwaparooPool", async accounts => {
   let goldToken;
   let silverToken;
 
@@ -26,7 +26,7 @@ contract("Liquidity Pool", async accounts => {
     await silverToken.transfer(liquidityProvider1, web3.utils.toBN('2000000000000000000'));
     await silverToken.transfer(swapper1, web3.utils.toBN('500000000000000000'));
 
-    pool = await LiquidityPool.new(goldToken.address,silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV");
+    pool = await SwaparooPool.new(goldToken.address,silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV");
   }
 
   beforeEach("deploy and init", async () => {
@@ -35,12 +35,12 @@ contract("Liquidity Pool", async accounts => {
 
   describe('#create-contract', function () {
     it("create pool with non-contract address reverts", async () => {
-      await truffleAssert.reverts(LiquidityPool.new(liquidityProvider1, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
-      await truffleAssert.reverts(LiquidityPool.new(silverToken.address, liquidityProvider1, "Liquidity Pool Shares", "LP-GLD-SLV"));
+      await truffleAssert.reverts(SwaparooPool.new(liquidityProvider1, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
+      await truffleAssert.reverts(SwaparooPool.new(silverToken.address, liquidityProvider1, "Liquidity Pool Shares", "LP-GLD-SLV"));
     });
   
     it("create pool with the same addresses reverts", async () => {
-      await truffleAssert.reverts(LiquidityPool.new(silverToken.address, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
+      await truffleAssert.reverts(SwaparooPool.new(silverToken.address, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
     });
   });
 
@@ -144,6 +144,10 @@ contract("Liquidity Pool", async accounts => {
       await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1);
     });
 
+    it("remove liquidity when no liquidity was provided reverts", async () => {
+      await truffleAssert.reverts(pool.removeLiquidity(web3.utils.toBN("1"), {from: liquidityProvider1}));
+    });
+
     it("liquidity tokens can be transfered", async () => {
       // Add liquidity
       const amountGold   = web3.utils.toBN('200000000000000000');
@@ -161,14 +165,6 @@ contract("Liquidity Pool", async accounts => {
   
       assert(liqudityTokensAfter2.eq(liqudityTokensBefore1), "provider2 should have all tokens of provider1");
       assert(liqudityTokensAfter1.eq(web3.utils.toBN("0")), "provider1 should not have any tokens");
-    });
-
-    it("remove liquidity when no liquidity was provided reverts", async () => {
-      const sharesToRemove = web3.utils.toBN("1");
-      await truffleAssert.reverts(
-        pool.removeLiquidity(sharesToRemove, {from: liquidityProvider1}),
-        "Cannot remove liquidity if none is present"
-      );
     });
   });
 

@@ -2,12 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-import "./LiquidityPool.sol";
+import "./SwaparooPool.sol";
 
 contract SwaparooCore is AccessControlEnumerable {
     bytes32 public constant ROLE_OWNER = keccak256("OWNER");
     mapping (address => mapping (address => address)) pools; // (tokenA,tokenB) => pool
-    // Todo: change to (address,address) => LiquidityPool
+    // Todo: change to (address,address) => SwaparooPool
     address[] poolsArray;
 
     event OwnerAdded(address account);
@@ -46,7 +46,7 @@ contract SwaparooCore is AccessControlEnumerable {
     function createPool(address tokenA, address tokenB) external onlyRoleOwner {
         require(pools[tokenA][tokenB] != address(0) && pools[tokenB][tokenA] != address(0), "Only one pool can exist for a token-pair");
 
-        LiquidityPool pool = new LiquidityPool(tokenA, tokenB, "LP", "LP");
+        SwaparooPool pool = new SwaparooPool(tokenA, tokenB, "LP", "LP");
         pools[tokenA][tokenB] = address(pool);
         poolsArray.push(address(pool));
 
