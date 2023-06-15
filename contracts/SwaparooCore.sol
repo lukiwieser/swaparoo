@@ -6,9 +6,9 @@ import "./SwaparooPool.sol";
 
 contract SwaparooCore is AccessControlEnumerable {
     bytes32 public constant ROLE_OWNER = keccak256("OWNER");
-    mapping (address => mapping (address => address)) pools; // (tokenA,tokenB) => pool
+    mapping (address => mapping (address => address)) poolsMap; // (tokenA,tokenB) => pool
     // Todo: change to (address,address) => SwaparooPool
-    address[] poolsArray;
+    address[] public poolsArray;
 
     event OwnerAdded(address account);
     event OwnerRemoved(address account);
@@ -20,12 +20,16 @@ contract SwaparooCore is AccessControlEnumerable {
     }
 
     modifier onlyRoleOwner() {
-        require(this.isOwner(msg.sender), "Caller is not a owner");
+        require(this.isOwner(msg.sender), "unauthorized");
         _;
     }
 
     function getPools() external view returns(address[] memory) {
         return poolsArray;
+    }
+
+    function getPoolByTokens(address tokenA, address tokenB) external view returns(address) {
+        return poolsMap[tokenA][tokenB];
     }
 
     function isOwner(address account) external view returns (bool) {
@@ -38,25 +42,27 @@ contract SwaparooCore is AccessControlEnumerable {
     }
 
     function renounceOwner() external onlyRoleOwner {
-        require(getRoleMemberCount(ROLE_OWNER) > 1, "Cannot renounce owner if they are the only owner");
+        require(getRoleMemberCount(ROLE_OWNER) > 1, "only-owner");
         _revokeRole(ROLE_OWNER, msg.sender);
         emit OwnerRemoved(msg.sender);
     }
 
     function createPool(address tokenA, address tokenB) external onlyRoleOwner {
-        require(pools[tokenA][tokenB] == address(0) && pools[tokenB][tokenA] == address(0), "Only one pool can exist for a token-pair");
+        require(poolsMap[tokenA][tokenB] == address(0) && poolsMap[tokenB][tokenA] == address(0), "already-exists");
 
         SwaparooPool pool = new SwaparooPool(tokenA, tokenB, "LP", "LP");
-        pools[tokenA][tokenB] = address(pool);
+        poolsMap[tokenA][tokenB] = address(pool);
         poolsArray.push(address(pool));
 
         emit PoolAdded(address(pool), tokenA, tokenB);
     }
 
+    /*
     function removePool(address tokenA, address tokenB) external onlyRoleOwner {
-        // TODO: check if exits
+        require(poolsMap[tokenA][tokenB] != address(0) && poolsMap[tokenB][tokenA] != address(0), "not-found");
+
         // find index of poolsArray
-        address poolAddress = pools[tokenA][tokenB];
+        address poolAddress = poolsMap[tokenA][tokenB];
         uint poolIndex = 0;
         for(uint i = 0; i < poolsArray.length; i++) {
             if(poolsArray[i] == poolAddress) {
@@ -64,11 +70,14 @@ contract SwaparooCore is AccessControlEnumerable {
                 break;
             }
         }
+
         // delete from array & mapping
         poolsArray[poolIndex] = poolsArray[poolsArray.length-1];
         poolsArray.pop();
-        delete pools[tokenA][tokenB];
+        delete poolsMap[tokenA][tokenB];
+        delete poolsMap[tokenB][tokenA];
 
         emit PoolRemoved(poolAddress, tokenA, tokenB);
     }
+    */
 }

@@ -29,7 +29,7 @@ contract("SwaparooCore", async accounts => {
   beforeEach("deploy and init", async () => {
     await deployAndInit();
   });
-
+  
   describe('#manage-role-owner', function () {
     it("owner should be set after contract creation", async () => {
         assert(await swaparooCore.isOwner(owner));
@@ -58,18 +58,18 @@ contract("SwaparooCore", async accounts => {
     it("others cannot add owners", async () => {
       await truffleAssert.reverts(
         swaparooCore.addOwner(billy, {from: alice}),
-        "Caller is not a owner"
+        "unauthorized"
       );
     });
 
     it("owner cannot renounce, if they are the only owner", async () => {
         await truffleAssert.reverts(
             swaparooCore.renounceOwner(),
-            "Cannot renounce owner if they are the only owner"
+            "only-owner"
         );
     });
   });
-
+  
   describe('#create-pool', function () {
     it("create pool works", async () => {
       const tx = await swaparooCore.createPool(goldToken.address, silverToken.address);
@@ -87,17 +87,17 @@ contract("SwaparooCore", async accounts => {
       const newPoolInstance = await SwaparooPool.at(pools[0]);
       await newPoolInstance.getAddressTokenA();
     });
-
+    
     it("create duplicate pool reverts", async () => {
       await swaparooCore.createPool(goldToken.address, silverToken.address);
       // try creating duplicate pools:
       await truffleAssert.reverts(
         swaparooCore.createPool(goldToken.address, silverToken.address),
-        "Only one pool can exist for a token-pair"
+        "already-exists"
       );
       await truffleAssert.reverts(
         swaparooCore.createPool(silverToken.address, goldToken.address),
-        "Only one pool can exist for a token-pair"
+        "already-exists"
       );
     });
 
@@ -113,9 +113,48 @@ contract("SwaparooCore", async accounts => {
     it("only owner can create pools", async () => {
       await truffleAssert.reverts(
         swaparooCore.createPool(goldToken.address, silverToken.address, {from: billy}),
-        "Caller is not a owner"
+        "unauthorized"
       );
     });
   });
+  /*
+  describe('#remove-pool', function () {
+    it("remove pool works", async () => {
+      // create two pools
+      await swaparooCore.createPool(goldToken.address, silverToken.address);
+      await swaparooCore.createPool(goldToken.address, bronzeToken.address);
+
+      // remove one pool
+      await swaparooCore.removePool(goldToken.address, silverToken.address);
+
+      const pools = await swaparooCore.poolsArray.call();
+      assert(pools.length == 1, "There should be only 1 pools existing");
+
+      const removedPoolAddress = await swaparooCore.getPoolByTokens(goldToken.address, silverToken.address);
+      assert(removedPoolAddress == "0x0000000000000000000000000000000000000000", "Address should be zero address")
+    });
+
+    it("remove non-existing pool reverts", async () => {
+      // create pool
+      await swaparooCore.createPool(goldToken.address, silverToken.address);
+      // remove different pool
+      await truffleAssert.reverts(
+        swaparooCore.removePool(bronzeToken.address, silverToken.address),
+        "not-found"
+      );
+    });
+
+    it("only owner can remove pools", async () => {
+      // create two pools
+      await swaparooCore.createPool(goldToken.address, silverToken.address);
+      await swaparooCore.createPool(goldToken.address, bronzeToken.address);
+
+      await truffleAssert.reverts(
+        swaparooCore.removePool(goldToken.address, silverToken.address, {from: billy}),
+        "unauthorized"
+      );
+    });
+  });
+  */
 });
 

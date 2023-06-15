@@ -66,7 +66,7 @@ contract SwaparooPool is ERC20 {
         uint numShares;
         if(totalSupply() > 0) {
             // s = (dx/X)* T = (dy/Y)*T
-            require(amountTokenA * _amountTokenB == amountTokenB * _amountTokenA, "proportion of token increase must equal proportion of reserve: dx/dy == X/Y");
+            require(amountTokenA * _amountTokenB == amountTokenB * _amountTokenA, "wrong-proportion");
             numShares = Math.min(
                 (_amountTokenA/amountTokenA) * totalSupply(),
                 (_amountTokenB/amountTokenB) * totalSupply()
@@ -87,7 +87,7 @@ contract SwaparooPool is ERC20 {
     }
 
     function removeLiquidity(uint _numShares) external {
-        require(totalSupply() > 0, "Cannot remove liquidity if none is present");
+        require(totalSupply() > 0, "no-liqudity");
 
         // be aware of integer division!
         // mathematically dx*(s/T) migth seem the same as (dx*s)/T, but the first one will always yield 0 due to integer divsion.
@@ -109,7 +109,7 @@ contract SwaparooPool is ERC20 {
 
     
     function swap(uint _amountTokenIn, address _tokenIn) external {
-        require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "tokenIn not supported by this pool");
+        require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "token-not-supported");
 
         if(_tokenIn == address(tokenA)) {
             uint amountTokenOut = (amountTokenB * _amountTokenIn) / (amountTokenA + _amountTokenIn);
