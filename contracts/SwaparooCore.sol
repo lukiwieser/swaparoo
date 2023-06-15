@@ -44,7 +44,7 @@ contract SwaparooCore is AccessControlEnumerable {
     }
 
     function createPool(address tokenA, address tokenB) external onlyRoleOwner {
-        require(pools[tokenA][tokenB] != address(0) && pools[tokenB][tokenA] != address(0), "Only one pool can exist for a token-pair");
+        require(pools[tokenA][tokenB] == address(0) && pools[tokenB][tokenA] == address(0), "Only one pool can exist for a token-pair");
 
         SwaparooPool pool = new SwaparooPool(tokenA, tokenB, "LP", "LP");
         pools[tokenA][tokenB] = address(pool);
@@ -71,6 +71,4 @@ contract SwaparooCore is AccessControlEnumerable {
 
         emit PoolRemoved(poolAddress, tokenA, tokenB);
     }
-
-
 }
