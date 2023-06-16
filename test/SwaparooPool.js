@@ -170,10 +170,10 @@ contract("SwaparooPool", async accounts => {
 
   describe('#swap', function () {
     it("swap tokenB to tokenA yields correct balances", async () => {
-      // tokenA = Gold, tokenB = Silver
+      // tokenB = Silver, tokenA = Gold
   
       // Add liquidity
-      let amountGold    = web3.utils.toBN('200000000000000000');
+      let amountGold   = web3.utils.toBN('200000000000000000');
       let amountSilver = web3.utils.toBN('1000000000000000000');
       await goldToken.approve(pool.address, amountGold, {from: liquidityProvider1});
       await silverToken.approve(pool.address, amountSilver, {from: liquidityProvider1});
@@ -181,52 +181,83 @@ contract("SwaparooPool", async accounts => {
       
       let balanceSilverBefore = await silverToken.balanceOf(swapper1);
       let balanceGoldBefore= await goldToken.balanceOf(swapper1);
-  
-      // Swap                              
+      const poolGoldReserveBefore = await pool.getAmountTokenA();
+      const poolSilverReserveBefore = await pool.getAmountTokenB();
+
+      // Swap                               
       let amountTokenIn = web3.utils.toBN('300000000000000000');
       let addressTokenIn = silverToken.address;
       await silverToken.approve(pool.address, amountTokenIn, {from: swapper1});
       await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1})
-  
-      let amoutTokenOutExpected = web3.utils.toBN('46153846153846153');
-      let balanceGoldExpected = balanceGoldBefore.add(amoutTokenOutExpected);
-      let balanceSilverExpected = balanceSilverBefore.sub(amountTokenIn);
-  
-      let balanceSilverAfter = await silverToken.balanceOf(swapper1);
-      let balanceGoldAfter = await goldToken.balanceOf(swapper1);
-  
-      assert(balanceSilverAfter.eq(balanceSilverExpected), "Gold balance is wrong");
-      assert(balanceGoldAfter.eq(balanceGoldExpected), "Silver balance is wrong");
+      
+      // Calculate Expected Token Out
+      const feePercentage = web3.utils.toBN('30');
+      const amountTokenInFee = amountTokenIn.mul(feePercentage).div(web3.utils.toBN('10000'));
+      const amountTokenInWithoutFee = amountTokenIn.sub(amountTokenInFee);
+      const amoutTokenOutExpected = amountGold.mul(amountTokenInWithoutFee).div(amountSilver.add(amountTokenInWithoutFee));
+
+      // Check Expected Balances of User
+      const balanceGoldExpected = balanceGoldBefore.add(amoutTokenOutExpected);
+      const balanceSilverExpected = balanceSilverBefore.sub(amountTokenIn);
+      const balanceGoldAfter = await goldToken.balanceOf(swapper1);
+      const balanceSilverAfter = await silverToken.balanceOf(swapper1);
+      assert(balanceGoldAfter.eq(balanceGoldExpected), "Gold balance of user is wrong");
+      assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance of user is wrong");
+
+      // Check Expected amount of tokens in pool
+      // if this check works, this means the dividends are also saved correctly
+      const poolGoldReserveExpected = poolGoldReserveBefore.sub(amoutTokenOutExpected);
+      const poolSilverReserveExpected = poolSilverReserveBefore.add(amountTokenInWithoutFee);
+      const poolGoldReserveAfter = await pool.getAmountTokenA();
+      const poolSilverReserveAfter = await pool.getAmountTokenB();
+      assert(poolGoldReserveAfter.eq(poolGoldReserveExpected), "Gold reserve of pool is wrong");
+      assert(poolSilverReserveAfter.eq(poolSilverReserveExpected), "Silver reserve of pool is wrong");
     });
-  
+
     it("swap tokenA to tokenB yields correct balances", async () => {
       // tokenA = Gold, tokenB = Silver
   
       // Add liquidity
-      let amountGold   = web3.utils.toBN( '200000000000000000');
+      let amountGold   = web3.utils.toBN('200000000000000000');
       let amountSilver = web3.utils.toBN('1000000000000000000');
       await goldToken.approve(pool.address, amountGold, {from: liquidityProvider1});
       await silverToken.approve(pool.address, amountSilver, {from: liquidityProvider1});
       await pool.provideLiquidity(amountGold,amountSilver, {from: liquidityProvider1});
       
+      // Record balances before swapping
       let balanceSilverBefore = await silverToken.balanceOf(swapper1);
       let balanceGoldBefore= await goldToken.balanceOf(swapper1);
-  
-      // Swap                              
+      const poolGoldReserveBefore = await pool.getAmountTokenA();
+      const poolSilverReserveBefore = await pool.getAmountTokenB();
+
+      // Swap                               
       let amountTokenIn = web3.utils.toBN('20000000000000000');
       let addressTokenIn = goldToken.address;
       await goldToken.approve(pool.address, amountTokenIn, {from: swapper1});
       await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1})
-  
-      let amoutTokenOutExpected = web3.utils.toBN('90909090909090909');
-      let balanceSilverExpected = balanceSilverBefore.add(amoutTokenOutExpected);
-      let balanceGoldExpected = balanceGoldBefore.sub(amountTokenIn);
-  
-      let balanceSilverAfter = await silverToken.balanceOf(swapper1);
-      let balanceGoldAfter = await goldToken.balanceOf(swapper1);
-  
-      assert(balanceSilverAfter.eq(balanceSilverExpected), "Gold balance is wrong");
-      assert(balanceGoldAfter.eq(balanceGoldExpected), "Silver balance is wrong");
+      
+      // Calculate Expected Token Out
+      const feePercentage = web3.utils.toBN('30');
+      const amountTokenInFee = amountTokenIn.mul(feePercentage).div(web3.utils.toBN('10000'));
+      const amountTokenInWithoutFee = amountTokenIn.sub(amountTokenInFee);
+      const amoutTokenOutExpected = amountSilver.mul(amountTokenInWithoutFee).div(amountGold.add(amountTokenInWithoutFee));
+
+      // Check Expected Balances of User
+      const balanceGoldExpected = balanceGoldBefore.sub(amountTokenIn);
+      const balanceSilverExpected = balanceSilverBefore.add(amoutTokenOutExpected);
+      const balanceGoldAfter = await goldToken.balanceOf(swapper1);
+      const balanceSilverAfter = await silverToken.balanceOf(swapper1);
+      assert(balanceGoldAfter.eq(balanceGoldExpected), "Gold balance of user is wrong");
+      assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance of user is wrong");
+
+      // Check Expected amount of tokens in pool
+      // if this check works, this means the dividends are also saved correctly
+      const poolGoldReserveExpected = poolGoldReserveBefore.add(amountTokenInWithoutFee);
+      const poolSilverReserveExpected = poolSilverReserveBefore.sub(amoutTokenOutExpected);
+      const poolGoldReserveAfter = await pool.getAmountTokenA();
+      const poolSilverReserveAfter = await pool.getAmountTokenB();
+      assert(poolGoldReserveAfter.eq(poolGoldReserveExpected), "Gold reserve of pool is wrong");
+      assert(poolSilverReserveAfter.eq(poolSilverReserveExpected), "Silver reserve of pool is wrong");
     });
   
     it("swap does not change k", async () => {
@@ -260,6 +291,7 @@ contract("SwaparooPool", async accounts => {
   });
 
   describe('#other', function () {
+    
     it("transfer tokens to pool has no influence on swap", async () => {
       // Add liquidity
       const amountGold   = web3.utils.toBN('200000000000000000');
@@ -272,20 +304,27 @@ contract("SwaparooPool", async accounts => {
       const balanceSilverBefore = await silverToken.balanceOf(swapper1);
   
       // transfer tokens to pool
-      await goldToken.transfer(pool.address, web3.utils.toBN('10000000000000000'))
-  
+      await goldToken.transfer(pool.address, web3.utils.toBN('10000000000000000'));
+      await silverToken.transfer(pool.address, web3.utils.toBN('30000000000000'));
+
       // Swap                              
       const amountTokenIn = web3.utils.toBN('20000000000000000');
       const addressTokenIn = goldToken.address;
       await goldToken.approve(pool.address, amountTokenIn, {from: swapper1});
       await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1});
   
-      // record values after swap
+      // Record values after swap
       const balanceSilverAfter = await silverToken.balanceOf(swapper1);
-  
+      
+       // Calculate Expected Token Out
+       const feePercentage = web3.utils.toBN('30');
+       const amountTokenInFee = amountTokenIn.mul(feePercentage).div(web3.utils.toBN('10000'));
+       const amountTokenInWithoutFee = amountTokenIn.sub(amountTokenInFee);
+       const amoutTokenOutExpected = amountSilver.mul(amountTokenInWithoutFee).div(amountGold.add(amountTokenInWithoutFee));
+
       // check if balance is the same as expected
       // transfering tokens to the pool, could influence action like swapping, if not accounted for!
-      const amoutTokenOutExpected = web3.utils.toBN('90909090909090909');
+      //const amoutTokenOutExpected = web3.utils.toBN('90909090909090909');
       const balanceSilverExpected = balanceSilverBefore.add(amoutTokenOutExpected);
       assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance wrong");
     });

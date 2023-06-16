@@ -83,7 +83,7 @@ contract("SwaparooCore", async accounts => {
       const pools = await swaparooCore.getPools();
       assert(pools.length == 1, "There should be 1 pool existing");
 
-      // deployed contract is of type SwaparooPool
+      // test if contract is of type SwaparooPool, by calling a function
       const newPoolInstance = await SwaparooPool.at(pools[0]);
       await newPoolInstance.getAddressTokenA();
     });
