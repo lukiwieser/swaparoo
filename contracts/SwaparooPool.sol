@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
+import "./DualAssetDividendToken.sol";
+
 // TODO: keep frontrunning/dynamic nature in mind (min values etc.)
-contract SwaparooPool is ERC20 {
+contract SwaparooPool is DualAssetDividendToken {
     IERC20 public immutable tokenA;
     IERC20 public immutable tokenB;
     // save amount of tokens addtionally in this contract, 
@@ -15,6 +16,7 @@ contract SwaparooPool is ERC20 {
     uint public amountTokenA = 0;
     uint public amountTokenB = 0; 
     uint private k = 0;
+    uint public fee = 30; // 30 = 0.3%, 
 
     event LiquidityProvided(address liquidityProvider, uint amountTokenA, uint amountTokenB, uint addedShares);
     event LiquidityRemoved(address liquidityProvider, uint removedShares, uint amountTokenA, uint amountTokenB);
@@ -25,7 +27,7 @@ contract SwaparooPool is ERC20 {
         address _tokenB, 
         string memory _liqudityTokenName, 
         string memory _liqudityTokenSymbol
-        ) ERC20(_liqudityTokenName, _liqudityTokenSymbol) {
+        ) DualAssetDividendToken(_tokenA, _tokenB, _liqudityTokenName, _liqudityTokenSymbol) {
         require(_tokenA != address(0) && _tokenB != address(0), "Tokens cannot have the zero address");
         require(Address.isContract(_tokenA) && Address.isContract(_tokenB), "Tokens must be contracts");
         require(_tokenA != _tokenB, "TokenA must be different from TokenB");
@@ -110,20 +112,27 @@ contract SwaparooPool is ERC20 {
     
     function swap(uint _amountTokenIn, address _tokenIn) external {
         require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "token-not-supported");
+        // TODO: insuficcent liquditiy = not enough out tokens
 
         if(_tokenIn == address(tokenA)) {
-            uint amountTokenOut = (amountTokenB * _amountTokenIn) / (amountTokenA + _amountTokenIn);
+            uint amountTokenInFees = (_amountTokenIn * fee) / 10000;
+            uint amountTokenInPool = _amountTokenIn - amountTokenInFees;
+            uint amountTokenOut = (amountTokenB * amountTokenInPool) / (amountTokenA + amountTokenInPool);
             tokenA.transferFrom(msg.sender, address(this), _amountTokenIn);
             tokenB.transfer(msg.sender, amountTokenOut);
-            amountTokenA += _amountTokenIn;
+            amountTokenA += amountTokenInPool;
             amountTokenB -= amountTokenOut;
+            distributeDividendsAsset0(amountTokenInFees);
             emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenB));
         } else {
-            uint amountTokenOut = (amountTokenA * _amountTokenIn) / (amountTokenB + _amountTokenIn);
+            uint amountTokenInFees = (_amountTokenIn * fee) / 10000;
+            uint amountTokenInPool = _amountTokenIn - amountTokenInFees;
+            uint amountTokenOut = (amountTokenA * amountTokenInPool) / (amountTokenB + amountTokenInPool);
             tokenB.transferFrom(msg.sender, address(this), _amountTokenIn);
             tokenA.transfer(msg.sender, amountTokenOut);
-            amountTokenB += _amountTokenIn;
+            amountTokenB += amountTokenInPool;
             amountTokenA -= amountTokenOut;
+            distributeDividendsAsset1(amountTokenInFees);
             emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenA));
         }
     }
