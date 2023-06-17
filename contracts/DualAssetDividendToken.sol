@@ -54,7 +54,7 @@ contract DualAssetDividendToken is ERC20 {
     }
 
     function distributeDividendsAsset1(uint amount) internal {
-        totalDividendsAsset1 += (amount * MULTIPLIER)/ totalSupply();
+        totalDividendsAsset1 += (amount * MULTIPLIER) / totalSupply();
     }
 
     function updateDividends(address account) internal {

@@ -62,16 +62,14 @@ contract SwaparooPool is DualAssetDividendToken {
     function provideLiquidity(uint _amountTokenA, uint _amountTokenB) external {
         require(_amountTokenA > 0 && _amountTokenB > 0, "number of tokens must be greater than 0");
         
-        // TODO: revisit intialTokensProvided
-
         // determine shares
         uint numShares;
         if(totalSupply() > 0) {
             // s = (dx/X)* T = (dy/Y)*T
             require(amountTokenA * _amountTokenB == amountTokenB * _amountTokenA, "wrong-proportion");
             numShares = Math.min(
-                (_amountTokenA/amountTokenA) * totalSupply(),
-                (_amountTokenB/amountTokenB) * totalSupply()
+                (_amountTokenA * totalSupply()) / amountTokenA,
+                (_amountTokenB * totalSupply()) / amountTokenB
             );
         } else {
             numShares = Math.sqrt(_amountTokenA * _amountTokenB);

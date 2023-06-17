@@ -45,6 +45,7 @@ contract("SwaparooPool", async accounts => {
   });
 
   describe('#liquidity', function () {
+    
     it("provide initial liquidity works", async () => {
       let amountGold = web3.utils.toBN('200000000000000000');
       let amountSilver = web3.utils.toBN('1000000000000000000');
@@ -58,7 +59,7 @@ contract("SwaparooPool", async accounts => {
       assert((await silverToken.balanceOf(pool.address)).eq(amountSilver), "Balance of Silver-Token is wrong");
       assert((await pool.balanceOf(liquidityProvider1)).eq(expectedShares), "Wrong number of expected Shares");
     });
-  
+    
     it("provide further liqudity with correct ratio works", async () => {
       async function _provideLiquidity(_amountTokenA, _contractTokenA, _amountTokenB, _contractTokenB, _pool, _account) {
         await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
@@ -68,9 +69,16 @@ contract("SwaparooPool", async accounts => {
   
       // initial liqudity (ratio 2 : 10)
       await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1)
-  
+
       // further liqudity (ratio 1 : 5 aka 2 : 10)
-      await _provideLiquidity(web3.utils.toBN('10000000000000000'), goldToken, web3.utils.toBN('50000000000000000'), silverToken, pool, liquidityProvider1)
+      await _provideLiquidity(web3.utils.toBN('10000000000000000'), goldToken, web3.utils.toBN('50000000000000000'), silverToken, pool, liquidityProvider1);
+      
+      // check shares
+      const sharesBefore = web3.utils.toBN("447213595499957939")
+      const expectedNewShares = web3.utils.toBN("22360679774997896");  
+      const expectedShares = expectedNewShares.add(sharesBefore);
+      const shares = await pool.balanceOf(liquidityProvider1);
+      assert(shares.eq(expectedShares), "Number of shares wrong");
     });
 
     it("provide further liqudity with incorrect ratio reverts", async () => {
