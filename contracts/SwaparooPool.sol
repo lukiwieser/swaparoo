@@ -9,6 +9,8 @@ import "./DualAssetDividendToken.sol";
 
 // TODO: keep frontrunning/dynamic nature in mind (min values etc.)
 contract SwaparooPool is DualAssetDividendToken {
+    uint public constant FEE = 30; // 30 = 0.3% = 0.003, 
+    uint public constant FEE_MULITPLIER = 10000;
     IERC20 public immutable tokenA;
     IERC20 public immutable tokenB;
     // save amount of tokens addtionally in this contract, 
@@ -16,7 +18,7 @@ contract SwaparooPool is DualAssetDividendToken {
     uint public amountTokenA = 0;
     uint public amountTokenB = 0; 
     uint private k = 0;
-    uint public fee = 30; // 30 = 0.3%, 
+
 
     event LiquidityProvided(address liquidityProvider, uint amountTokenA, uint amountTokenB, uint addedShares);
     event LiquidityRemoved(address liquidityProvider, uint removedShares, uint amountTokenA, uint amountTokenB);
@@ -115,7 +117,7 @@ contract SwaparooPool is DualAssetDividendToken {
         uint totalTokenIn  = (tokenIn == tokenA) ? amountTokenA : amountTokenB;
         uint totalTokenOut = (tokenIn == tokenA) ? amountTokenB : amountTokenA;
 
-        uint amountTokenInFees = (_amountTokenIn * fee) / 10000;
+        uint amountTokenInFees = (_amountTokenIn * FEE) / FEE_MULITPLIER;
         uint amountTokenInWithoutFees = _amountTokenIn - amountTokenInFees;
         uint amountTokenOut = (totalTokenOut * amountTokenInWithoutFees) / (totalTokenIn + amountTokenInWithoutFees);
 
