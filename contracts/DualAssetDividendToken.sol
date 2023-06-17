@@ -18,6 +18,7 @@ contract DualAssetDividendToken is ERC20 {
         uint lastDividendsAsset1;
     }
 
+    uint constant MULTIPLIER = 10e18;
     IERC20 immutable asset0;
     IERC20 immutable asset1;
     uint totalDividendsAsset0; // as percentages
@@ -49,18 +50,18 @@ contract DualAssetDividendToken is ERC20 {
     }
 
     function distributeDividendsAsset0(uint amount) internal {
-        totalDividendsAsset0 += amount / totalSupply();
+        totalDividendsAsset0 += (amount * MULTIPLIER) / totalSupply();
     }
 
     function distributeDividendsAsset1(uint amount) internal {
-        totalDividendsAsset1 += amount / totalSupply();
+        totalDividendsAsset1 += (amount * MULTIPLIER)/ totalSupply();
     }
 
     function updateDividends(address account) internal {
         uint newDividends0 = totalDividendsAsset0 - accounts[account].lastDividendsAsset0;
         uint newDividends1 = totalDividendsAsset1 - accounts[account].lastDividendsAsset1;
-        uint owingDividendsAsset0 = balanceOf(account) * newDividends0;
-        uint owingDividendsAsset1 = balanceOf(account) * newDividends1;
+        uint owingDividendsAsset0 = (balanceOf(account) * newDividends0) / MULTIPLIER;
+        uint owingDividendsAsset1 = (balanceOf(account) * newDividends1) / MULTIPLIER;
         if(owingDividendsAsset0 > 0) {
             accounts[account].dividendsAsset0 += owingDividendsAsset0;
             accounts[account].lastDividendsAsset0 = totalDividendsAsset0;
