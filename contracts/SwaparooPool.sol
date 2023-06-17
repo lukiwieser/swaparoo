@@ -109,31 +109,26 @@ contract SwaparooPool is DualAssetDividendToken {
         emit LiquidityRemoved(msg.sender, _numShares, decreaseTokenA, decreaseTokenB);
     }
 
-    
     function swap(uint _amountTokenIn, address _tokenIn) external {
         require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "token-not-supported");
-        // TODO: insuficcent liquditiy = not enough out tokens
 
-        if(_tokenIn == address(tokenA)) {
-            uint amountTokenInFees = (_amountTokenIn * fee) / 10000;
-            uint amountTokenInPool = _amountTokenIn - amountTokenInFees;
-            uint amountTokenOut = (amountTokenB * amountTokenInPool) / (amountTokenA + amountTokenInPool);
-            tokenA.transferFrom(msg.sender, address(this), _amountTokenIn);
-            tokenB.transfer(msg.sender, amountTokenOut);
-            amountTokenA += amountTokenInPool;
-            amountTokenB -= amountTokenOut;
-            distributeDividendsAsset0(amountTokenInFees);
-            emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenB));
-        } else {
-            uint amountTokenInFees = (_amountTokenIn * fee) / 10000;
-            uint amountTokenInPool = _amountTokenIn - amountTokenInFees;
-            uint amountTokenOut = (amountTokenA * amountTokenInPool) / (amountTokenB + amountTokenInPool);
-            tokenB.transferFrom(msg.sender, address(this), _amountTokenIn);
-            tokenA.transfer(msg.sender, amountTokenOut);
-            amountTokenB += amountTokenInPool;
-            amountTokenA -= amountTokenOut;
-            distributeDividendsAsset1(amountTokenInFees);
-            emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenA));
-        }
+        IERC20 tokenIn = IERC20(_tokenIn);
+        IERC20 tokenOut = _tokenIn == address(tokenA) ? tokenB : tokenA;
+        uint totalTokenIn  = _tokenIn == address(tokenA) ? amountTokenA : amountTokenB;
+        uint totalTokenOut = _tokenIn == address(tokenA) ? amountTokenB : amountTokenA;
+
+        uint amountTokenInFees = (_amountTokenIn * fee) / 10000;
+        uint amountTokenInWithoutFees = _amountTokenIn - amountTokenInFees;
+        uint amountTokenOut = (totalTokenOut * amountTokenInWithoutFees) / (totalTokenIn + amountTokenInWithoutFees);
+
+        tokenIn.transferFrom(msg.sender, address(this), _amountTokenIn);
+        tokenOut.transfer(msg.sender, amountTokenOut);
+        amountTokenA = _tokenIn == address(tokenA) ? amountTokenA+amountTokenInWithoutFees : amountTokenA-amountTokenOut;
+        amountTokenB = _tokenIn == address(tokenB) ? amountTokenB+amountTokenInWithoutFees : amountTokenB-amountTokenOut;
+
+        if (_tokenIn == address(tokenA)) distributeDividendsAsset0(amountTokenInFees);
+        if (_tokenIn == address(tokenB)) distributeDividendsAsset1(amountTokenInFees);
+
+        emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenOut));
     }
 }
