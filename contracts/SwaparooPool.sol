@@ -77,7 +77,7 @@ contract SwaparooPool is DualAssetDividendToken {
             numShares = Math.sqrt(_amountTokenA * _amountTokenB);
         }
         _mint(msg.sender, numShares);
-       
+        
         // update balances (TokenA & TokenB)
         tokenA.transferFrom(msg.sender, address(this), _amountTokenA);
         tokenB.transferFrom(msg.sender, address(this), _amountTokenB);
