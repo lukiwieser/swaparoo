@@ -113,9 +113,9 @@ contract SwaparooPool is DualAssetDividendToken {
         require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "token-not-supported");
 
         IERC20 tokenIn = IERC20(_tokenIn);
-        IERC20 tokenOut = _tokenIn == address(tokenA) ? tokenB : tokenA;
-        uint totalTokenIn  = _tokenIn == address(tokenA) ? amountTokenA : amountTokenB;
-        uint totalTokenOut = _tokenIn == address(tokenA) ? amountTokenB : amountTokenA;
+        IERC20 tokenOut = (tokenIn == tokenA) ? tokenB : tokenA;
+        uint totalTokenIn  = (tokenIn == tokenA) ? amountTokenA : amountTokenB;
+        uint totalTokenOut = (tokenIn == tokenA) ? amountTokenB : amountTokenA;
 
         uint amountTokenInFees = (_amountTokenIn * fee) / 10000;
         uint amountTokenInWithoutFees = _amountTokenIn - amountTokenInFees;
@@ -123,11 +123,11 @@ contract SwaparooPool is DualAssetDividendToken {
 
         tokenIn.transferFrom(msg.sender, address(this), _amountTokenIn);
         tokenOut.transfer(msg.sender, amountTokenOut);
-        amountTokenA = _tokenIn == address(tokenA) ? amountTokenA+amountTokenInWithoutFees : amountTokenA-amountTokenOut;
-        amountTokenB = _tokenIn == address(tokenB) ? amountTokenB+amountTokenInWithoutFees : amountTokenB-amountTokenOut;
+        amountTokenA = (tokenIn == tokenA) ? amountTokenA+amountTokenInWithoutFees : amountTokenA-amountTokenOut;
+        amountTokenB = (tokenIn == tokenB) ? amountTokenB+amountTokenInWithoutFees : amountTokenB-amountTokenOut;
 
-        if (_tokenIn == address(tokenA)) distributeDividendsAsset0(amountTokenInFees);
-        if (_tokenIn == address(tokenB)) distributeDividendsAsset1(amountTokenInFees);
+        if (tokenIn == tokenA) distributeDividendsAsset0(amountTokenInFees);
+        if (tokenIn == tokenB) distributeDividendsAsset1(amountTokenInFees);
 
         emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenOut));
     }
