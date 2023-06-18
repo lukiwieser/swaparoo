@@ -6,18 +6,18 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // Receives profits in one of two assets, then distributes its profits to the token-holders
 // everybody can be token-holder
-contract SimpleDividendToken is DualDividendToken {
+contract SimpleDualDividendToken is DualDividendToken {
     constructor(address _tokenA, address _tokenB) DualDividendToken(_tokenA, _tokenB, "DiviToken", "DT") {}
 
-    function receiveProfits(uint amount, address assetAddress) external {
-        require(assetAddress == address(tokenA) || assetAddress == address(tokenB), "Asset not supported");
+    function receiveProfits(uint amount, address token) external {
+        require(token == address(tokenA) || token == address(tokenB), "Token not supported");
         
-        IERC20(assetAddress).transferFrom(msg.sender, address(this), amount);
+        IERC20(token).transferFrom(msg.sender, address(this), amount);
         
-        if(assetAddress == address(tokenA)) {
+        if(token == address(tokenA)) {
             distributeDividendsA(amount);
         }
-        if(assetAddress == address(tokenB)) {
+        if(token == address(tokenB)) {
             distributeDividendsB(amount);
         }
     }

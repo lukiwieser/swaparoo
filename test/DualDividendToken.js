@@ -2,7 +2,7 @@ const truffleAssert = require('truffle-assertions');
 
 const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");
-const SimpleDividendToken = artifacts.require("SimpleDividendToken");
+const SimpleDualDividendToken = artifacts.require("SimpleDualDividendToken");
 
 contract("DualDividendToken", async accounts => {
     // contracts:
@@ -20,7 +20,7 @@ contract("DualDividendToken", async accounts => {
         // Note: "owner" will have the initial balance
         goldToken = await GLDToken.new(web3.utils.toBN('10000000000000000000'));
         silverToken = await SILToken.new(web3.utils.toBN('10000000000000000000'));
-        dividendToken = await SimpleDividendToken.new(goldToken.address, silverToken.address);
+        dividendToken = await SimpleDualDividendToken.new(goldToken.address, silverToken.address);
     }
 
     beforeEach("deploy and init", async () => {

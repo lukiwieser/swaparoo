@@ -71,8 +71,8 @@ contract DualDividendToken is ERC20 {
         }
     }
 	
-	// update dividends if shares of account change
-    // Assumption: shares of a accounts token stays the same during adding up their dividends
+    // assmuption: shares of a accounts token stays the same during adding up their dividends
+    // => update dividends if shares of account change
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
         if (from != address(0)) {
