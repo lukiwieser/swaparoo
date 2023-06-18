@@ -9,47 +9,47 @@ import "./DualDividendToken.sol";
 
 // TODO: keep frontrunning/dynamic nature in mind (min values etc.)
 contract SwaparooPool is DualDividendToken {
-    uint public constant FEE = 30; // 30 = 0.3% = 0.003, 
+    uint public constant FEE = 30; // 30 = 0.3% = 0.003
     uint public constant FEE_MULITPLIER = 10000;
 
     // save amount of tokens additionally in this contract, since:
     // 1) everybody can transfer e.g. tokenA to us, thus increasing the amount of this contract
     // 2) we want to differentiate between the balance of reserves and the balance of dividends
-    uint public amountTokenA = 0;
-    uint public amountTokenB = 0; 
+    uint public reserveA = 0;
+    uint public reserveB = 0;
     uint private k = 0;
 
-    event LiquidityProvided(address liquidityProvider, uint amountTokenA, uint amountTokenB, uint addedShares);
-    event LiquidityRemoved(address liquidityProvider, uint removedShares, uint amountTokenA, uint amountTokenB);
-    event Swap(address user, uint amountTokenIn, address addressTokenIn, uint amountTokenOut, address addressTokenOut);
+    event LiquidityProvided(address liquidityProvider, uint amountA, uint amountB, uint addedShares);
+    event LiquidityRemoved(address liquidityProvider, uint removedShares, uint amountA, uint amountB);
+    event Swap(address user, uint amountIn, address tokenIn, uint amountOut, address tokenOut);
 
     constructor(
-        address _tokenA, 
-        address _tokenB, 
-        string memory _liqudityTokenName, 
-        string memory _liqudityTokenSymbol
-    ) DualDividendToken(_tokenA, _tokenB, _liqudityTokenName, _liqudityTokenSymbol) {
+        address _tokenA,
+        address _tokenB,
+        string memory _liquidityTokenName,
+        string memory _liquidityTokenSymbol
+    ) DualDividendToken(_tokenA, _tokenB, _liquidityTokenName, _liquidityTokenSymbol) {
         require(_tokenA != address(0) && _tokenB != address(0), "Tokens cannot have the zero address");
         require(Address.isContract(_tokenA) && Address.isContract(_tokenB), "Tokens must be contracts");
         require(_tokenA != _tokenB, "TokenA must be different from TokenB");
-        
+
         // TODO: Introspection if really ERC20
         // tokenA & tokenB are already assigned in DualDividendToken
     }
 
-    function getAmountTokenA() external view returns (uint) {
-        return amountTokenA;
+    function getReserveA() external view returns (uint) {
+        return reserveA;
     }
 
-    function getAmountTokenB() external view returns (uint) {
-        return amountTokenB;
+    function getReserveB() external view returns (uint) {
+        return reserveB;
     }
 
-    function getAddressTokenA() external view returns (address) {
+    function getTokenA() external view returns (address) {
         return address(tokenA);
     }
 
-    function getAddressTokenB() external view returns (address) {
+    function getTokenB() external view returns (address) {
         return address(tokenB);
     }
 
@@ -59,74 +59,73 @@ contract SwaparooPool is DualDividendToken {
 
     // TODO: spot-price / expected-price?
 
-    function provideLiquidity(uint _amountTokenA, uint _amountTokenB) external {
-        require(_amountTokenA > 0 && _amountTokenB > 0, "number of tokens must be greater than 0");
-        
+    function provideLiquidity(uint amountA, uint amountB) external {
+        require(amountA > 0 && amountB > 0, "Number of tokens must be greater than 0");
+
         // determine shares
-        uint numShares;
-        if(totalSupply() > 0) {
-            // s = (dx/X)* T = (dy/Y)*T
-            require(amountTokenA * _amountTokenB == amountTokenB * _amountTokenA, "wrong-proportion");
-            numShares = Math.min(
-                (_amountTokenA * totalSupply()) / amountTokenA,
-                (_amountTokenB * totalSupply()) / amountTokenB
+        uint shares;
+        if (totalSupply() > 0) {
+            require(reserveA * amountB == reserveB * amountA, "Wrong proportion");
+            shares = Math.min(
+                (amountA * totalSupply()) / reserveA,
+                (amountB * totalSupply()) / reserveB
             );
         } else {
-            numShares = Math.sqrt(_amountTokenA * _amountTokenB);
+            shares = Math.sqrt(amountA * amountB);
         }
-        _mint(msg.sender, numShares);
-        
-        // update balances (TokenA & TokenB)
-        tokenA.transferFrom(msg.sender, address(this), _amountTokenA);
-        tokenB.transferFrom(msg.sender, address(this), _amountTokenB);
-        amountTokenA += _amountTokenA;
-        amountTokenB += _amountTokenB;
-        k = amountTokenA * amountTokenB;
+        _mint(msg.sender, shares);
 
-        emit LiquidityProvided(msg.sender, _amountTokenA, _amountTokenB, numShares);
+        // update balances (TokenA & TokenB)
+        tokenA.transferFrom(msg.sender, address(this), amountA);
+        tokenB.transferFrom(msg.sender, address(this), amountB);
+        reserveA += amountA;
+        reserveB += amountB;
+        k = reserveA * reserveB;
+
+        emit LiquidityProvided(msg.sender, amountA, amountB, shares);
     }
 
-    function removeLiquidity(uint _numShares) external {
-        require(totalSupply() > 0, "no-liqudity");
+    function removeLiquidity(uint shares) external {
+        require(totalSupply() > 0, "No liquidity");
 
         // be aware of integer division!
-        // mathematically dx*(s/T) migth seem the same as (dx*s)/T, but the first one will always yield 0 due to integer divsion.
-        uint decreaseTokenA = (amountTokenA * _numShares) / totalSupply();
-        uint decreaseTokenB = (amountTokenB * _numShares) / totalSupply();
+        // mathematically dx*(s/T) might seem the same as (dx*s)/T, but the first one will always yield 0 due to integer division.
+        uint decreaseTokenA = (reserveA * shares) / totalSupply();
+        uint decreaseTokenB = (reserveB * shares) / totalSupply();
 
         // adjust shares
-        _burn(msg.sender, _numShares);
+        _burn(msg.sender, shares);
 
-        // update balances 
+        // update balances
         tokenA.transfer(msg.sender, decreaseTokenA);
         tokenB.transfer(msg.sender, decreaseTokenB);
-        amountTokenA -= decreaseTokenA;
-        amountTokenB -= decreaseTokenB;
-        k = amountTokenA * amountTokenB;
+        reserveA -= decreaseTokenA;
+        reserveB -= decreaseTokenB;
+        k = reserveA * reserveB;
 
-        emit LiquidityRemoved(msg.sender, _numShares, decreaseTokenA, decreaseTokenB);
+        emit LiquidityRemoved(msg.sender, shares, decreaseTokenA, decreaseTokenB);
     }
 
-    function swap(uint _amountTokenIn, address _tokenIn) external {
-        require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "token-not-supported");
+    function swap(uint amountIn, address tokenIn) external {
+        require(tokenIn == address(tokenA) || tokenIn == address(tokenB), "Token not supported");
 
-        IERC20 tokenIn = IERC20(_tokenIn);
-        IERC20 tokenOut = (tokenIn == tokenA) ? tokenB : tokenA;
-        uint totalTokenIn  = (tokenIn == tokenA) ? amountTokenA : amountTokenB;
-        uint totalTokenOut = (tokenIn == tokenA) ? amountTokenB : amountTokenA;
+        IERC20 token = IERC20(tokenIn);
+        IERC20 tokenOut = (token == tokenA) ? tokenB : tokenA;
+        uint reserveIn  = (token == tokenA) ? reserveA : reserveB;
+        uint reserveOut = (token == tokenA) ? reserveB : reserveA;
 
-        uint amountTokenInFees = (_amountTokenIn * FEE) / FEE_MULITPLIER;
-        uint amountTokenInWithoutFees = _amountTokenIn - amountTokenInFees;
-        uint amountTokenOut = (totalTokenOut * amountTokenInWithoutFees) / (totalTokenIn + amountTokenInWithoutFees);
+        uint amountInFees = (amountIn * FEE) / FEE_MULITPLIER;
+        uint amountInWithoutFees = amountIn - amountInFees;
+        uint amountOut = (reserveOut * amountInWithoutFees) / (reserveIn + amountInWithoutFees);
 
-        tokenIn.transferFrom(msg.sender, address(this), _amountTokenIn);
-        tokenOut.transfer(msg.sender, amountTokenOut);
-        amountTokenA = (tokenIn == tokenA) ? amountTokenA+amountTokenInWithoutFees : amountTokenA-amountTokenOut;
-        amountTokenB = (tokenIn == tokenB) ? amountTokenB+amountTokenInWithoutFees : amountTokenB-amountTokenOut;
+        token.transferFrom(msg.sender, address(this), amountIn);
+        tokenOut.transfer(msg.sender, amountOut);
+        reserveA = (token == tokenA) ? reserveA + amountInWithoutFees : reserveA - amountOut;
+        reserveB = (token == tokenB) ? reserveB + amountInWithoutFees : reserveB - amountOut;
 
-        if (tokenIn == tokenA) distributeDividendsA(amountTokenInFees);
-        if (tokenIn == tokenB) distributeDividendsB(amountTokenInFees);
+        if (token == tokenA) distributeDividendsA(amountInFees);
+        if (token == tokenB) distributeDividendsB(amountInFees);
 
-        emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenOut));
+        emit Swap(msg.sender, amountIn, tokenIn, amountOut, address(tokenOut));
     }
 }

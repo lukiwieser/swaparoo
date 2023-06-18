@@ -189,8 +189,8 @@ contract("SwaparooPool", async accounts => {
       
       let balanceSilverBefore = await silverToken.balanceOf(swapper1);
       let balanceGoldBefore= await goldToken.balanceOf(swapper1);
-      const poolGoldReserveBefore = await pool.getAmountTokenA();
-      const poolSilverReserveBefore = await pool.getAmountTokenB();
+      const poolGoldReserveBefore = await pool.getReserveA();
+      const poolSilverReserveBefore = await pool.getReserveB();
 
       // Swap                               
       let amountTokenIn = web3.utils.toBN('300000000000000000');
@@ -216,8 +216,8 @@ contract("SwaparooPool", async accounts => {
       // if this check works, this means the dividends are also saved correctly
       const poolGoldReserveExpected = poolGoldReserveBefore.sub(amoutTokenOutExpected);
       const poolSilverReserveExpected = poolSilverReserveBefore.add(amountTokenInWithoutFee);
-      const poolGoldReserveAfter = await pool.getAmountTokenA();
-      const poolSilverReserveAfter = await pool.getAmountTokenB();
+      const poolGoldReserveAfter = await pool.getReserveA();
+      const poolSilverReserveAfter = await pool.getReserveB();
       assert(poolGoldReserveAfter.eq(poolGoldReserveExpected), "Gold reserve of pool is wrong");
       assert(poolSilverReserveAfter.eq(poolSilverReserveExpected), "Silver reserve of pool is wrong");
     });
@@ -235,8 +235,8 @@ contract("SwaparooPool", async accounts => {
       // Record balances before swapping
       let balanceSilverBefore = await silverToken.balanceOf(swapper1);
       let balanceGoldBefore= await goldToken.balanceOf(swapper1);
-      const poolGoldReserveBefore = await pool.getAmountTokenA();
-      const poolSilverReserveBefore = await pool.getAmountTokenB();
+      const poolGoldReserveBefore = await pool.getReserveA();
+      const poolSilverReserveBefore = await pool.getReserveB();
 
       // Swap                               
       let amountTokenIn = web3.utils.toBN('20000000000000000');
@@ -262,8 +262,8 @@ contract("SwaparooPool", async accounts => {
       // if this check works, this means the dividends are also saved correctly
       const poolGoldReserveExpected = poolGoldReserveBefore.add(amountTokenInWithoutFee);
       const poolSilverReserveExpected = poolSilverReserveBefore.sub(amoutTokenOutExpected);
-      const poolGoldReserveAfter = await pool.getAmountTokenA();
-      const poolSilverReserveAfter = await pool.getAmountTokenB();
+      const poolGoldReserveAfter = await pool.getReserveA();
+      const poolSilverReserveAfter = await pool.getReserveB();
       assert(poolGoldReserveAfter.eq(poolGoldReserveExpected), "Gold reserve of pool is wrong");
       assert(poolSilverReserveAfter.eq(poolSilverReserveExpected), "Silver reserve of pool is wrong");
     });
