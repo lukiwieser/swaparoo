@@ -5,20 +5,19 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-import "./DualAssetDividendToken.sol";
+import "./DualDividendToken.sol";
 
 // TODO: keep frontrunning/dynamic nature in mind (min values etc.)
-contract SwaparooPool is DualAssetDividendToken {
+contract SwaparooPool is DualDividendToken {
     uint public constant FEE = 30; // 30 = 0.3% = 0.003, 
     uint public constant FEE_MULITPLIER = 10000;
-    IERC20 public immutable tokenA;
-    IERC20 public immutable tokenB;
-    // save amount of tokens addtionally in this contract, 
-    // since everybody can transfer e.g. tokenA to us, thus increasing the amount of this contract
+
+    // save amount of tokens additionally in this contract, since:
+    // 1) everybody can transfer e.g. tokenA to us, thus increasing the amount of this contract
+    // 2) we want to differentiate between the balance of reserves and the balance of dividends
     uint public amountTokenA = 0;
     uint public amountTokenB = 0; 
     uint private k = 0;
-
 
     event LiquidityProvided(address liquidityProvider, uint amountTokenA, uint amountTokenB, uint addedShares);
     event LiquidityRemoved(address liquidityProvider, uint removedShares, uint amountTokenA, uint amountTokenB);
@@ -29,14 +28,13 @@ contract SwaparooPool is DualAssetDividendToken {
         address _tokenB, 
         string memory _liqudityTokenName, 
         string memory _liqudityTokenSymbol
-        ) DualAssetDividendToken(_tokenA, _tokenB, _liqudityTokenName, _liqudityTokenSymbol) {
+    ) DualDividendToken(_tokenA, _tokenB, _liqudityTokenName, _liqudityTokenSymbol) {
         require(_tokenA != address(0) && _tokenB != address(0), "Tokens cannot have the zero address");
         require(Address.isContract(_tokenA) && Address.isContract(_tokenB), "Tokens must be contracts");
         require(_tokenA != _tokenB, "TokenA must be different from TokenB");
+        
         // TODO: Introspection if really ERC20
-
-        tokenA = IERC20(_tokenA);
-        tokenB = IERC20(_tokenB);
+        // tokenA & tokenB are already assigned in DualDividendToken
     }
 
     function getAmountTokenA() external view returns (uint) {
@@ -126,8 +124,8 @@ contract SwaparooPool is DualAssetDividendToken {
         amountTokenA = (tokenIn == tokenA) ? amountTokenA+amountTokenInWithoutFees : amountTokenA-amountTokenOut;
         amountTokenB = (tokenIn == tokenB) ? amountTokenB+amountTokenInWithoutFees : amountTokenB-amountTokenOut;
 
-        if (tokenIn == tokenA) distributeDividendsAsset0(amountTokenInFees);
-        if (tokenIn == tokenB) distributeDividendsAsset1(amountTokenInFees);
+        if (tokenIn == tokenA) distributeDividendsA(amountTokenInFees);
+        if (tokenIn == tokenB) distributeDividendsB(amountTokenInFees);
 
         emit Swap(msg.sender, _amountTokenIn, _tokenIn, amountTokenOut, address(tokenOut));
     }

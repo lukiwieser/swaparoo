@@ -28,7 +28,7 @@ contract("DualAssetDividendToken", async accounts => {
     });
   
     describe('#basic-functionalities', function () {
-        it("distribute dividends of asset0 works", async () => {
+        it("distribute dividends of tokenA works", async () => {
             await dividendToken.mint(100, {from: alice});
             await dividendToken.mint(200, {from: billy});
 
@@ -58,7 +58,7 @@ contract("DualAssetDividendToken", async accounts => {
             assert(dividendsSilverBilly.eq(dividendsSilverBillyExpected), "Billy's silver dividends are wrong");
         });
 
-        it("distribute dividends of asset1 works", async () => {
+        it("distribute dividends of tokenB works", async () => {
             await dividendToken.mint(100, {from: alice});
             await dividendToken.mint(200, {from: billy});
 
