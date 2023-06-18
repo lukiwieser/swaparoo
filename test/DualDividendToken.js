@@ -164,7 +164,6 @@ contract("DualDividendToken", async accounts => {
             await dividendToken.receiveProfits(amountSilverProfits, silverToken.address);
             
             // Update Alice's Dividends
-
             await dividendToken.getAndUpdateDividends.call({from: alice});
 
             // Add profits
