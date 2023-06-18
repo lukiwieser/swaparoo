@@ -37,20 +37,12 @@ contract SwaparooPool is DualDividendToken {
         // tokenA & tokenB are already assigned in DualDividendToken
     }
 
-    function getReserveA() external view returns (uint) {
-        return reserveA;
+    function getReserves() external view returns (uint, uint) {
+        return (reserveA, reserveB);
     }
 
-    function getReserveB() external view returns (uint) {
-        return reserveB;
-    }
-
-    function getTokenA() external view returns (address) {
-        return address(tokenA);
-    }
-
-    function getTokenB() external view returns (address) {
-        return address(tokenB);
+    function getTokenAddresses() external view returns (address, address) {
+        return (address(tokenA), address(tokenB));
     }
 
     function getK() external view returns (uint) {
@@ -88,8 +80,6 @@ contract SwaparooPool is DualDividendToken {
     function removeLiquidity(uint shares) external {
         require(totalSupply() > 0, "No liquidity");
 
-        // be aware of integer division!
-        // mathematically dx*(s/T) might seem the same as (dx*s)/T, but the first one will always yield 0 due to integer division.
         uint decreaseTokenA = (reserveA * shares) / totalSupply();
         uint decreaseTokenB = (reserveB * shares) / totalSupply();
 
@@ -106,26 +96,26 @@ contract SwaparooPool is DualDividendToken {
         emit LiquidityRemoved(msg.sender, shares, decreaseTokenA, decreaseTokenB);
     }
 
-    function swap(uint amountIn, address tokenIn) external {
-        require(tokenIn == address(tokenA) || tokenIn == address(tokenB), "Token not supported");
+    function swap(uint amountIn, address _tokenIn) external {
+        require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "Token not supported");
 
-        IERC20 token = IERC20(tokenIn);
-        IERC20 tokenOut = (token == tokenA) ? tokenB : tokenA;
-        uint reserveIn  = (token == tokenA) ? reserveA : reserveB;
-        uint reserveOut = (token == tokenA) ? reserveB : reserveA;
+        IERC20 tokenIn = IERC20(_tokenIn);
+        IERC20 tokenOut = (tokenIn == tokenA) ? tokenB : tokenA;
+        uint reserveIn  = (tokenIn == tokenA) ? reserveA : reserveB;
+        uint reserveOut = (tokenIn == tokenA) ? reserveB : reserveA;
 
         uint amountInFees = (amountIn * FEE) / FEE_MULITPLIER;
         uint amountInWithoutFees = amountIn - amountInFees;
         uint amountOut = (reserveOut * amountInWithoutFees) / (reserveIn + amountInWithoutFees);
 
-        token.transferFrom(msg.sender, address(this), amountIn);
+        tokenIn.transferFrom(msg.sender, address(this), amountIn);
         tokenOut.transfer(msg.sender, amountOut);
-        reserveA = (token == tokenA) ? reserveA + amountInWithoutFees : reserveA - amountOut;
-        reserveB = (token == tokenB) ? reserveB + amountInWithoutFees : reserveB - amountOut;
+        reserveA = (tokenIn == tokenA) ? reserveA + amountInWithoutFees : reserveA - amountOut;
+        reserveB = (tokenIn == tokenB) ? reserveB + amountInWithoutFees : reserveB - amountOut;
 
-        if (token == tokenA) distributeDividendsA(amountInFees);
-        if (token == tokenB) distributeDividendsB(amountInFees);
+        if (tokenIn == tokenA) distributeDividendsA(amountInFees);
+        if (tokenIn == tokenB) distributeDividendsB(amountInFees);
 
-        emit Swap(msg.sender, amountIn, tokenIn, amountOut, address(tokenOut));
+        emit Swap(msg.sender, amountIn, address(tokenIn), amountOut, address(tokenOut));
     }
 }

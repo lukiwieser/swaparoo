@@ -85,7 +85,7 @@ contract("SwaparooCore", async accounts => {
 
       // test if contract is of type SwaparooPool, by calling a function
       const newPoolInstance = await SwaparooPool.at(pools[0]);
-      await newPoolInstance.getReserveA();
+      await newPoolInstance.getReserves();
     });
     
     it("create duplicate pool reverts", async () => {

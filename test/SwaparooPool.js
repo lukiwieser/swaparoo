@@ -189,8 +189,7 @@ contract("SwaparooPool", async accounts => {
       
       let balanceSilverBefore = await silverToken.balanceOf(swapper1);
       let balanceGoldBefore= await goldToken.balanceOf(swapper1);
-      const poolGoldReserveBefore = await pool.getReserveA();
-      const poolSilverReserveBefore = await pool.getReserveB();
+      const {'0':poolGoldReserveBefore, '1':poolSilverReserveBefore} = await pool.getReserves();
 
       // Swap                               
       let amountTokenIn = web3.utils.toBN('300000000000000000');
@@ -216,8 +215,7 @@ contract("SwaparooPool", async accounts => {
       // if this check works, this means the dividends are also saved correctly
       const poolGoldReserveExpected = poolGoldReserveBefore.sub(amoutTokenOutExpected);
       const poolSilverReserveExpected = poolSilverReserveBefore.add(amountTokenInWithoutFee);
-      const poolGoldReserveAfter = await pool.getReserveA();
-      const poolSilverReserveAfter = await pool.getReserveB();
+      const {'0': poolGoldReserveAfter, '1': poolSilverReserveAfter} = await pool.getReserves();
       assert(poolGoldReserveAfter.eq(poolGoldReserveExpected), "Gold reserve of pool is wrong");
       assert(poolSilverReserveAfter.eq(poolSilverReserveExpected), "Silver reserve of pool is wrong");
     });
@@ -235,8 +233,7 @@ contract("SwaparooPool", async accounts => {
       // Record balances before swapping
       let balanceSilverBefore = await silverToken.balanceOf(swapper1);
       let balanceGoldBefore= await goldToken.balanceOf(swapper1);
-      const poolGoldReserveBefore = await pool.getReserveA();
-      const poolSilverReserveBefore = await pool.getReserveB();
+      const {'0': poolGoldReserveBefore, '1': poolSilverReserveBefore} = await pool.getReserves();
 
       // Swap                               
       let amountTokenIn = web3.utils.toBN('20000000000000000');
@@ -262,8 +259,7 @@ contract("SwaparooPool", async accounts => {
       // if this check works, this means the dividends are also saved correctly
       const poolGoldReserveExpected = poolGoldReserveBefore.add(amountTokenInWithoutFee);
       const poolSilverReserveExpected = poolSilverReserveBefore.sub(amoutTokenOutExpected);
-      const poolGoldReserveAfter = await pool.getReserveA();
-      const poolSilverReserveAfter = await pool.getReserveB();
+      const {'0': poolGoldReserveAfter, '1': poolSilverReserveAfter} = await pool.getReserves();
       assert(poolGoldReserveAfter.eq(poolGoldReserveExpected), "Gold reserve of pool is wrong");
       assert(poolSilverReserveAfter.eq(poolSilverReserveExpected), "Silver reserve of pool is wrong");
     });
