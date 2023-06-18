@@ -4,7 +4,7 @@ const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");
 const SimpleDividendToken = artifacts.require("SimpleDividendToken");
 
-contract("DualAssetDividendToken", async accounts => {
+contract("DualDividendToken", async accounts => {
     // contracts:
     let goldToken;
     let silverToken;
