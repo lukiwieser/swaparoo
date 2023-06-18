@@ -120,5 +120,145 @@ contract("DualDividendToken", async accounts => {
             assert(silverAfterAlice.eq(silverAliceExpected), "Alice's silver balance is wrong");
         });
     });
+
+    describe('#sideeffects-between-distributions', function () {
+        it("update dividends between distribution has no sideeffects", async () => {
+            await dividendToken.mint(100, {from: alice});
+            await dividendToken.mint(200, {from: billy});
+
+            // Add profits
+            const amountSilverProfits = web3.utils.toBN('500000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits);
+            await dividendToken.receiveProfits(amountSilverProfits, silverToken.address);
+            
+            // Payout Alice's Dividends
+            await dividendToken.payoutDividends({from: alice});
+
+            // Add profits
+            const amountSilverProfits2 = web3.utils.toBN('500000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits2);
+            await dividendToken.receiveProfits(amountSilverProfits2, silverToken.address);
+
+            // Check Alice's Dividends
+            const {'0': dividendsGoldAlice, '1': dividendsSilverAlice} = await dividendToken.getAndUpdateDividends.call({from: alice});
+            const dividendsGoldAliceExpected = web3.utils.toBN("0");
+            const dividendsSilverAliceExpected = web3.utils.toBN("166666666666666666");
+            assert(dividendsGoldAlice.eq(dividendsGoldAliceExpected), "Alice's gold dividends are wrong");
+            assert(dividendsSilverAlice.eq(dividendsSilverAliceExpected), "Alice's silver dividends are wrong");
+        
+            // Check Billy's Dividends
+            const {'0': dividendsGoldBilly, '1': dividendsSilverBilly} = await dividendToken.getAndUpdateDividends.call({from: billy});
+            const dividendsGoldBillyExpected = web3.utils.toBN("0");
+            const dividendsSilverBillyExpected = web3.utils.toBN("666666666666666666");
+            assert(dividendsGoldBilly.eq(dividendsGoldBillyExpected), "Billy's gold dividends are wrong");
+            assert(dividendsSilverBilly.eq(dividendsSilverBillyExpected), "Billy's silver dividends are wrong");
+        });
+
+        it("payout dividends between distribution has no sideeffects", async () => {
+            await dividendToken.mint(100, {from: alice});
+            await dividendToken.mint(200, {from: billy});
+
+            // Add profits
+            const amountSilverProfits = web3.utils.toBN('500000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits);
+            await dividendToken.receiveProfits(amountSilverProfits, silverToken.address);
+            
+            // Update Alice's Dividends
+
+            await dividendToken.getAndUpdateDividends.call({from: alice});
+
+            // Add profits
+            const amountSilverProfits2 = web3.utils.toBN('500000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits2);
+            await dividendToken.receiveProfits(amountSilverProfits2, silverToken.address);
+
+            // Check Alice's Dividends
+            const {'0': dividendsGoldAlice, '1': dividendsSilverAlice} = await dividendToken.getAndUpdateDividends.call({from: alice});
+            const dividendsGoldAliceExpected = web3.utils.toBN("0");
+            const dividendsSilverAliceExpected = web3.utils.toBN("333333333333333333");
+            assert(dividendsGoldAlice.eq(dividendsGoldAliceExpected), "Alice's gold dividends are wrong");
+            assert(dividendsSilverAlice.eq(dividendsSilverAliceExpected), "Alice's silver dividends are wrong");
+        
+            // Check Billy's Dividends
+            const {'0': dividendsGoldBilly, '1': dividendsSilverBilly} = await dividendToken.getAndUpdateDividends.call({from: billy});
+            const dividendsGoldBillyExpected = web3.utils.toBN("0");
+            const dividendsSilverBillyExpected = web3.utils.toBN("666666666666666666");
+            assert(dividendsGoldBilly.eq(dividendsGoldBillyExpected), "Billy's gold dividends are wrong");
+            assert(dividendsSilverBilly.eq(dividendsSilverBillyExpected), "Billy's silver dividends are wrong");
+        });
+
+        it("mint/burn between distributions has no sideeffects", async () => {
+            await dividendToken.mint(100, {from: alice});
+            await dividendToken.mint(200, {from: billy});
+
+            // Add profits
+            const amountSilverProfits = web3.utils.toBN('1000000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits);
+            await dividendToken.receiveProfits(amountSilverProfits, silverToken.address);
+            
+            // Mint tokens for Alice's
+            await dividendToken.mint(100, {from: alice});
+
+            // Add profits
+            const amountSilverProfits2 = web3.utils.toBN('1000000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits2);
+            await dividendToken.receiveProfits(amountSilverProfits2, silverToken.address);
+
+            // Burn tokens from Billy
+            await dividendToken.burn(200, {from: billy});
+
+            // Add profits
+            const amountSilverProfits3 = web3.utils.toBN('1000000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits3);
+            await dividendToken.receiveProfits(amountSilverProfits3, silverToken.address);
+
+            // Check Alice's Dividends
+            const {'0': dividendsGoldAlice, '1': dividendsSilverAlice} = await dividendToken.getAndUpdateDividends.call({from: alice});
+            const dividendsGoldAliceExpected = web3.utils.toBN("0");
+            const dividendsSilverAliceExpected = web3.utils.toBN("1833333333333333333"); // 1000000000000000000*(100/300) + 1000000000000000000*(200/400) + 1000000000000000000*(200/200)
+            assert(dividendsGoldAlice.eq(dividendsGoldAliceExpected), "Alice's gold dividends are wrong");
+            assert(dividendsSilverAlice.eq(dividendsSilverAliceExpected), "Alice's silver dividends are wrong");
+        
+            // Check Billy's Dividends
+            const {'0': dividendsGoldBilly, '1': dividendsSilverBilly} = await dividendToken.getAndUpdateDividends.call({from: billy});
+            const dividendsGoldBillyExpected = web3.utils.toBN("0");
+            const dividendsSilverBillyExpected = web3.utils.toBN("1166666666666666666"); // 1000000000000000000*(200/300) + 1000000000000000000*(200/400) + 1000000000000000000*(0/200)
+            assert(dividendsGoldBilly.eq(dividendsGoldBillyExpected), "Billy's gold dividends are wrong");
+            assert(dividendsSilverBilly.eq(dividendsSilverBillyExpected), "Billy's silver dividends are wrong");
+        });
+
+        it("transfer between distributions has no sideeffects", async () => {
+            await dividendToken.mint(100, {from: alice});
+            await dividendToken.mint(200, {from: billy});
+
+            // Add profits
+            const amountSilverProfits = web3.utils.toBN('1000000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits);
+            await dividendToken.receiveProfits(amountSilverProfits, silverToken.address);
+            
+            // Transfer tokens from Alice to Billy
+            await dividendToken.transfer(billy, 50, {from: alice});
+
+            // Add profits
+            const amountSilverProfits2 = web3.utils.toBN('1000000000000000000');
+            await silverToken.approve(dividendToken.address, amountSilverProfits2);
+            await dividendToken.receiveProfits(amountSilverProfits2, silverToken.address);
+
+            // Check Alice's Dividends
+            const {'0': dividendsGoldAlice, '1': dividendsSilverAlice} = await dividendToken.getAndUpdateDividends.call({from: alice});
+            const dividendsGoldAliceExpected = web3.utils.toBN("0");
+            // Attention! We use floor since due to rounding errors that happen with solidities uint
+            const dividendsSilverAliceExpected = web3.utils.toBN("499999999999999999"); // Floor[1000000000000000000*(100/300)] + Floor[1000000000000000000*(50/300)]
+            assert(dividendsGoldAlice.eq(dividendsGoldAliceExpected), "Alice's gold dividends are wrong");
+            assert(dividendsSilverAlice.eq(dividendsSilverAliceExpected), "Alice's silver dividends are wrong");
+        
+            // Check Billy's Dividends
+            const {'0': dividendsGoldBilly, '1': dividendsSilverBilly} = await dividendToken.getAndUpdateDividends.call({from: billy});
+            const dividendsGoldBillyExpected = web3.utils.toBN("0");
+            const dividendsSilverBillyExpected = web3.utils.toBN("1499999999999999999"); // Floor[11000000000000000000*(200/300)] + Floor[1000000000000000000*(250/300)]
+            assert(dividendsGoldBilly.eq(dividendsGoldBillyExpected), "Billy's gold dividends are wrong");
+            assert(dividendsSilverBilly.eq(dividendsSilverBillyExpected), "Billy's silver dividends are wrong");
+        });
+    });
 });
 
