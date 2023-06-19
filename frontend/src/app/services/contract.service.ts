@@ -242,5 +242,22 @@ export class ContractService {
       method: swaparooPool?.methods.removeLiquidity(sharesToRemove)
     });
   }
+
+  public async swap(amountIn: string, addressTokenIn: string, addressPool: string, userAddress: string) {
+    // approve
+    // @ts-ignore
+    const tokenIn = new this.web3.eth.Contract(ERC20.abi, addressTokenIn);
+    await callContract({
+      from: userAddress, 
+      method: tokenIn?.methods.approve(addressPool, amountIn)
+    });
+
+    // @ts-ignore
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, addressPool);
+    await callContract({
+      from: userAddress, 
+      method: swaparooPool?.methods.swap(amountIn, addressTokenIn)
+    });
+  }
 }
 

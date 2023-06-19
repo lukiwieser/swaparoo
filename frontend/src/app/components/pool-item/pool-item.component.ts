@@ -14,6 +14,7 @@ export class PoolItemComponent {
   @Input() selectedUser: User | undefined;
   provideLiqudityForm: FormGroup;
   removeLiqudityForm: FormGroup;
+  swapForm: FormGroup;
 
   ngOnChanges(changes: SimpleChanges) {
     this.selectedUser = changes['selectedUser']?.currentValue;
@@ -31,6 +32,11 @@ export class PoolItemComponent {
 
     this.removeLiqudityForm = this.formBuilder.group({
       sharesToRemove: ['', [Validators.required]],
+    });
+
+    this.swapForm = this.formBuilder.group({
+      tokenInAmount: ['', [Validators.required]],
+      tokenInType: ['', [Validators.required]],
     });
   }
 
@@ -52,5 +58,16 @@ export class PoolItemComponent {
 
     const sharesToRemove = this.removeLiqudityForm.get('sharesToRemove')?.value;
     this.contractService.removeLiquidity(sharesToRemove, this.pool.address, this.selectedUser.address);
+  }
+
+  public async swap() {
+    if(!this.selectedUser) return;
+    if(this.swapForm.invalid) return;
+
+    const tokenInType = this.swapForm.get('tokenInType')?.value;
+    const tokenInAmount = this.swapForm.get('tokenInAmount')?.value;
+    const tokenInAddress = (tokenInType == "tokenA") ? this.pool.tokenA : this.pool.tokenB;
+
+    this.contractService.swap(tokenInAmount, tokenInAddress, this.pool.address, this.selectedUser.address);
   }
 }
