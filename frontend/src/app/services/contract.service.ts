@@ -113,6 +113,14 @@ export class ContractService {
     this.usersState$.next(newState);
   }
 
+  private async updateTokenAddressesFromPool(pool: Pool) {
+    const tokenAddresses = this.tokensState$.value.addresses;
+    tokenAddresses.add(pool.address);
+    tokenAddresses.add(pool.tokenA);
+    tokenAddresses.add(pool.tokenB);
+    this.tokensState$.next({addresses: tokenAddresses});
+  }
+
   private async getTokenBalancesOfUser(userAddress: string) : Promise<TokenBalance[]> {
     const tokenAddresses = this.tokensState$.value.addresses;
     const balances : TokenBalance[] = [];
@@ -144,6 +152,8 @@ export class ContractService {
         const newState = this.swaparooPoolsState$.value;
         newState.pools.push(pool);
         this.swaparooPoolsState$.next(newState);
+        this.updateTokenAddressesFromPool(pool);
+        this.updateUserState();
       } else {
         console.log(error);
       }
