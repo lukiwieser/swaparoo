@@ -16,6 +16,18 @@
     <p>{{swaparooCoreState?.ether}}</p>
 
     <p>Pools: ({{swaparooPoolsState?.pools?.length}})</p>
+
+    <p>Users:</p>
+    <form [formGroup]="addUserForm" (ngSubmit)="addUser()">
+        <label for="user_address">SwaparooCore Address:</label> <br>
+        <input type="text" name="user_address" formControlName="user_address" id="user_address">
+        <button type="submit">Add</button>
+    </form>
+    <p>{{usersState?.users?.length}}</p>
+
+    <div *ngFor="let user of usersState?.users">
+        <div>{{user.address}} {{user.isOwner}}</div>
+    </div>
 </div>
 
 

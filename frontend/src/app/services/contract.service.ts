@@ -5,6 +5,7 @@ import Contract from 'web3-eth-contract';
 import { SwaparooCoreState, initalSwaparooCoreState } from '../models/SwaparooCoreState';
 import { BehaviorSubject } from 'rxjs';
 import { SwaparooPoolsState, initialSwaparooPoolsState, Pool } from '../models/PoolsState';
+import { User, UsersState, initialUsersState } from '../models/UserState';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ export class ContractService {
   public swaparooCore: Contract | undefined;
   
   public swaparooCoreState$ = new BehaviorSubject<SwaparooCoreState>(initalSwaparooCoreState);
-  public swaparooPoolsState$ = new BehaviorSubject<SwaparooPoolsState>(initialSwaparooPoolsState)
+  public swaparooPoolsState$ = new BehaviorSubject<SwaparooPoolsState>(initialSwaparooPoolsState);
+  public usersState$ = new BehaviorSubject<UsersState>(initialUsersState);
 
   public async connectToClient(host: string): Promise<boolean> {
     try {
@@ -83,5 +85,25 @@ export class ContractService {
     }
 
     this.swaparooPoolsState$.next({pools});
+  }
+
+  public async addUser(address: string) {
+    const userAddresses = this.usersState$.value.users.map(user => user.address);
+    if (userAddresses.includes(address)) {
+      console.warn("Address already invited.")
+      return;
+    }
+
+    const ether = this.web3.utils.fromWei(await this.web3.eth.getBalance(address), "ether");
+    const isOwner = await this.swaparooCore?.methods.isOwner(address).call();
+    const newUser : User = {
+      address,
+      isOwner,
+      ether
+    }
+
+    const newState = this.usersState$.value;
+    newState.users.push(newUser);
+    this.usersState$.next(newState);
   }
 }
