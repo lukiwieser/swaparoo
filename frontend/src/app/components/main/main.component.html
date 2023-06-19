@@ -31,20 +31,27 @@
 
     <div *ngFor="let user of usersState?.users">
         <br>
-        <br>
         <div>
-            <span *ngIf="user.address==selectedUser?.address">[✓]</span>
-            <span *ngIf="user.address!=selectedUser?.address">[ ]</span>
+            <span *ngIf="user.address==selectedUser?.address">☑</span>
+            <span *ngIf="user.address!=selectedUser?.address">☐</span>
+            <button (click)="selectUser(user)" [disabled]="user.address==selectedUser?.address">select</button>
             {{user.address}}
             <span *ngIf="user.isOwner===true">(Owner)</span>
         </div>
-        <button (click)="selectUser(user)" [disabled]="user.address==selectedUser?.address">select</button>
     </div>
 
     <hr>
 
-    <h3>Pools ({{swaparooPoolsState?.pools?.length}}):</h3>
+    <h3>User Balance</h3>
+    <p>Ether: {{selectedUser?.ether}}</p>
+    <p>Tokens:</p>
+    <ul *ngFor="let tokenBalance of selectedUser?.tokenBalances">
+        <li>{{tokenBalance.address}}: {{tokenBalance.amount}}</li>
+    </ul>
 
+    <hr>
+
+    <h3>Pools ({{swaparooPoolsState?.pools?.length}}):</h3>
     <div *ngIf="selectedUser?.isOwner===true">
         <form [formGroup]="addPoolForm" (ngSubmit)="addPool()">
             <fieldset style="display: inline-block">
@@ -64,11 +71,8 @@
             </fieldset>
         </form>
     </div>
-
     <div *ngFor="let pool of swaparooPoolsState?.pools">
-        <br>
-        <br>
-        <div>{{pool.address}} (tokenA: {{pool.tokenA}}, tokenB: {{pool.tokenB}})</div>
+        <app-pool-item [pool]="pool" [selectedUser]="selectedUser"></app-pool-item>
     </div>
 </div>    
 

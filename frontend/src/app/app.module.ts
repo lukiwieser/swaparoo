@@ -6,12 +6,14 @@ import { AppComponent } from './app.component';
 import { MainComponent } from './components/main/main.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { PoolItemComponent } from './components/pool-item/pool-item.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    PoolItemComponent
   ],
   imports: [
     BrowserModule,

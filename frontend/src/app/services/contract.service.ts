@@ -6,9 +6,10 @@ import Contract from 'web3-eth-contract';
 import { SwaparooCoreState, initalSwaparooCoreState } from '../models/SwaparooCoreState';
 import { BehaviorSubject } from 'rxjs';
 import { SwaparooPoolsState, initialSwaparooPoolsState, Pool } from '../models/PoolsState';
-import { User, UsersState, initialUsersState } from '../models/UserState';
+import { TokenBalance, User, UsersState, initialUsersState } from '../models/UserState';
 import { CallOptions, callContract} from "./utils";
-
+import ERC20 from '../../abi/ERC20.json';
+import { TokensState, initialTokensState } from '../models/TokensState';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class ContractService {
   public swaparooCoreState$ = new BehaviorSubject<SwaparooCoreState>(initalSwaparooCoreState);
   public swaparooPoolsState$ = new BehaviorSubject<SwaparooPoolsState>(initialSwaparooPoolsState);
   public usersState$ = new BehaviorSubject<UsersState>(initialUsersState);
+  public tokensState$ = new BehaviorSubject<TokensState>(initialTokensState);
 
   public async connectToClient(host: string): Promise<boolean> {
     try {
@@ -37,9 +39,10 @@ export class ContractService {
   public async loadSwaparooCore(address: string) {
     const isValid = await this.isContractDeployed(address);
     if (isValid) {
-      this.initSwaparooCoreContract(address);
-      this.loadSwaparooCoreContract();
-      this.loadPools();
+      await this.initSwaparooCoreContract(address);
+      await this.loadSwaparooCoreContract();
+      await this.loadPools();
+      this.listenToBlockUpdates();
       this.listenToContractEvents();
     } 
     return isValid;
@@ -71,14 +74,21 @@ export class ContractService {
 
   private async loadPools() {
     const addresses : string[] = await this.swaparooCore?.methods.getPools().call();
-    const pools : Pool[] = [];
 
     // TODO: parallize
+    const pools : Pool[] = [];
     for(let address of addresses) {
       pools.push(await this.getPoolFromAddress(address));
     }
-
     this.swaparooPoolsState$.next({pools});
+
+    const tokenAddresses = new Set<string>();
+    for(let pool of pools) {
+      tokenAddresses.add(pool.address);
+      tokenAddresses.add(pool.tokenA);
+      tokenAddresses.add(pool.tokenB);
+    }
+    this.tokensState$.next({addresses: tokenAddresses});
   }
 
   public async addUser(address: string) {
@@ -90,15 +100,30 @@ export class ContractService {
 
     const ether = this.web3.utils.fromWei(await this.web3.eth.getBalance(address), "ether");
     const isOwner = await this.swaparooCore?.methods.isOwner(address).call();
+    const tokenBalances = await this.getTokenBalancesOfUser(address);
     const newUser : User = {
       address,
       isOwner,
-      ether
+      ether,
+      tokenBalances
     }
 
     const newState = this.usersState$.value;
     newState.users.push(newUser);
     this.usersState$.next(newState);
+  }
+
+  private async getTokenBalancesOfUser(userAddress: string) : Promise<TokenBalance[]> {
+    const tokenAddresses = this.tokensState$.value.addresses;
+    const balances : TokenBalance[] = [];
+    for (const tokenAddress of tokenAddresses) {
+      // @ts-ignore
+      const token = new this.web3.eth.Contract(ERC20.abi, tokenAddress);
+      const amount = await token.methods.balanceOf(userAddress).call();
+      const balance : TokenBalance = {address: tokenAddress, amount};
+      balances.push(balance);
+    }
+    return balances;
   }
 
   public async createPool(addressTokenA: string, addressTokenB: string, userAddress: string) {
@@ -125,6 +150,49 @@ export class ContractService {
     });
   }
 
+  private listenToBlockUpdates() {
+    this.web3.eth.subscribe('newBlockHeaders', async (error: any, result: any) => {
+      console.log("New block mined: ", result);
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+      
+      this.updateUserState();
+      this.updatePoolsState();
+    });
+  }
+
+  private async updateUserState() {
+      const usersState = this.usersState$.value;
+      for(const user of usersState.users) {
+        const ether = this.web3.utils.fromWei(await this.web3.eth.getBalance(user.address), "ether");
+        const tokenBalances = await this.getTokenBalancesOfUser(user.address);
+        const updatedUser : User = {
+          address: user.address,
+          ether,
+          isOwner: user.isOwner,
+          tokenBalances
+        }
+
+        const index = usersState.users.findIndex(u => u.address === user.address);
+        usersState.users[index] = updatedUser;
+      }
+      console.log(usersState);
+      this.usersState$.next(usersState);
+  }
+
+  private async updatePoolsState() {
+    const poolsState = this.swaparooPoolsState$.value;
+    for(const pool of poolsState.pools) {
+      const updatedPool = await this.getPoolFromAddress(pool.address);
+      const index = poolsState.pools.findIndex(p => p.address === pool.address);
+      poolsState.pools[index] = updatedPool;
+    }
+    this.swaparooPoolsState$.next(poolsState);
+  }
+
   private async getPoolFromAddress(address: string) : Promise<Pool> {
       // @ts-ignore
       const swaparooPool =  new this.web3.eth.Contract(SwaparooPool.abi, address);
@@ -139,6 +207,30 @@ export class ContractService {
         ether: "0",
       }
       return pool;
+  }
+
+  public async provideLiquidity(amountA: string, amountB: string, addressPool: string, addressTokenA: string, addressTokenB: string, userAddress: string) {
+    // approve
+    // @ts-ignore
+    const tokenA = new this.web3.eth.Contract(ERC20.abi, addressTokenA);
+    await callContract({
+      from: userAddress, 
+      method: tokenA?.methods.approve(addressPool, amountA)
+    });
+
+    // @ts-ignore
+    const tokenB = new this.web3.eth.Contract(ERC20.abi, addressTokenB);
+    await callContract({
+      from: userAddress, 
+      method: tokenB?.methods.approve(addressPool, amountB)
+    });
+
+    // @ts-ignore
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, addressPool);
+    await callContract({
+      from: userAddress, 
+      method: swaparooPool?.methods.provideLiquidity(amountA, amountB)
+    });
   }
 }
 

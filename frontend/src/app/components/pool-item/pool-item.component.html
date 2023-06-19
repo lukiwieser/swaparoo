@@ -1,0 +1,20 @@
+<div>
+    <div>{{pool.address}} (tokenA: {{pool.tokenA}}, tokenB: {{pool.tokenB}})</div>
+    <div>TokenA: {{pool.reserveA}}</div>
+    <div>TokenB: {{pool.reserveB}}</div>
+
+    <form [formGroup]="provideLiqudityForm" (ngSubmit)="provideLiquidity()" *ngIf="selectedUser">
+        <fieldset style="display: inline-block">
+            <legend style="font-weight: bold;">Provide Liquidity</legend>
+
+            <label for="amountTokenA">Amount Token A:</label> 
+            <input type="text" name="amountTokenA" formControlName="amountTokenA" id="amountTokenA" style="width: 20rem;"> <br>
+
+            <label for="amountTokenB">Amount Token B:</label> 
+            <input type="text" name="amountTokenB" formControlName="amountTokenB" id="amountTokenB" style="width: 20rem;"> <br>
+
+            <button type="submit">Provide</button>
+        </fieldset>
+    </form>
+
+</div>

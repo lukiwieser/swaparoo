@@ -41,7 +41,15 @@ export class MainComponent {
     await this.connectToClient();
     this.contractService.swaparooCoreState$.subscribe(state => this.swaparooCoreState = state);
     this.contractService.swaparooPoolsState$.subscribe(state => this.swaparooPoolsState = state);
-    this.contractService.usersState$.subscribe(state => this.usersState = state);
+    this.contractService.usersState$.subscribe(state => {
+      this.usersState = state;
+
+      const selectedUserIndex = this.usersState.users.findIndex(u => u.address === this.selectedUser?.address);
+      if(selectedUserIndex >= 0) {
+        this.selectedUser = this.usersState.users[selectedUserIndex];
+      }
+      console.log("updatedState");
+    });
   }
 
   private async connectToClient() {
