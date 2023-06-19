@@ -1,16 +1,18 @@
 <h1>Swaparoo</h1>
 
 <div *ngIf="!swaparooCoreAddress">
-    <p>Connect SwaparooCore</p>
-
     <form [formGroup]="form" (ngSubmit)="submit()">
-        <label for="swaparoo_core_address">SwaparooCore Address:</label> <br>
-        <input type="text" name="swaparoo_core_address" formControlName="swaparoo_core_address" id="swaparoo_core_address">
-        <button type="submit">Submit</button>
+        <fieldset style="display: inline-block">
+            <legend style="font-weight: bold;">Connect SwaparooCore</legend>
+
+            <label for="swaparoo_core_address">SwaparooCore Address:</label> <br>
+            <input type="text" name="swaparoo_core_address" formControlName="swaparoo_core_address" id="swaparoo_core_address" style="width: 20rem;">
+            <button type="submit">Connect</button>
+        </fieldset>
     </form>
 </div>
 
-<div *ngIf="swaparooCoreAddress">
+<div *ngIf="swaparooCoreAddress" >
     <p>Connected SwaparooCore</p>
     <p>{{swaparooCoreState?.address}}</p>
 
@@ -18,22 +20,55 @@
 
     <h3>Users ({{usersState?.users?.length}}):</h3>
     <form [formGroup]="addUserForm" (ngSubmit)="addUser()">
-        <label for="user_address">SwaparooCore Address:</label> <br>
-        <input type="text" name="user_address" formControlName="user_address" id="user_address">
-        <button type="submit">Add</button>
+        <fieldset style="display: inline-block">
+            <legend style="font-weight: bold">Add User</legend>
+
+            <label for="user_address">Address:</label> <br>
+            <input type="text" name="user_address" formControlName="user_address" id="user_address" style="width: 20rem;">
+            <button type="submit">Add</button>
+        </fieldset>
     </form>
 
     <div *ngFor="let user of usersState?.users">
-        <div>{{user.address}} {{user.isOwner}}</div>
+        <br>
+        <br>
+        <div>
+            <span *ngIf="user.address==selectedUser?.address">[✓]</span>
+            <span *ngIf="user.address!=selectedUser?.address">[ ]</span>
+            {{user.address}}
+            <span *ngIf="user.isOwner===true">(Owner)</span>
+        </div>
         <button (click)="selectUser(user)" [disabled]="user.address==selectedUser?.address">select</button>
-        <div *ngIf="user.address==selectedUser?.address">[selected]</div>
     </div>
 
     <hr>
 
     <h3>Pools ({{swaparooPoolsState?.pools?.length}}):</h3>
 
-    <!--0xe4Ec590FdF2a951F860756d4d4A6a0cea8747E47-->
-</div>
+    <div *ngIf="selectedUser?.isOwner===true">
+        <form [formGroup]="addPoolForm" (ngSubmit)="addPool()">
+            <fieldset style="display: inline-block">
+                <legend style="font-weight: bold">Add Pool</legend>
+    
+                <label for="addressTokenA">Address Token A:</label> <br>
+                <input type="text" name="addressTokenA" formControlName="addressTokenA" id="addressTokenA" style="width: 20rem;">
+                <br>
+                <br>
 
+                <label for="addressTokenB">Address Token B:</label> <br>
+                <input type="text" name="addressTokenB" formControlName="addressTokenB" id="addressTokenB" style="width: 20rem;">
+                <br>
+                <br>
+
+                <button type="submit">Add</button>
+            </fieldset>
+        </form>
+    </div>
+
+    <div *ngFor="let pool of swaparooPoolsState?.pools">
+        <br>
+        <br>
+        <div>{{pool.address}} (tokenA: {{pool.tokenA}}, tokenB: {{pool.tokenB}})</div>
+    </div>
+</div>    
 

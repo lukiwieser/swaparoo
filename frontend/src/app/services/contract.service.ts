@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import Web3 from 'web3';
 import SwaparooCore from '../../abi/SwaparooCore.json';
+import SwaparooPool from '../../abi/SwaparooPool.json';
 import Contract from 'web3-eth-contract';
 import { SwaparooCoreState, initalSwaparooCoreState } from '../models/SwaparooCoreState';
 import { BehaviorSubject } from 'rxjs';
 import { SwaparooPoolsState, initialSwaparooPoolsState, Pool } from '../models/PoolsState';
 import { User, UsersState, initialUsersState } from '../models/UserState';
+import { CallOptions, callContract} from "./utils";
+
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +26,7 @@ export class ContractService {
     try {
       const provider = new Web3.providers.WebsocketProvider(host);
       this.web3 = new Web3(provider);
+      window.web3 = this.web3 = new Web3(provider);
       return await this.web3.eth.net.isListening();
     } catch (e) {
       console.error("Connection failed with error: ", e)
@@ -36,6 +40,7 @@ export class ContractService {
       this.initSwaparooCoreContract(address);
       this.loadSwaparooCoreContract();
       this.loadPools();
+      this.listenToContractEvents();
     } 
     return isValid;
   }
@@ -70,18 +75,7 @@ export class ContractService {
 
     // TODO: parallize
     for(let address of addresses) {
-      // @ts-ignore
-      const swaparooPool =  new this.web3.eth.Contract(SwaparooPool.abi, address);
-      const {'0': reserveA, '1': reserveB} = await swaparooPool?.methods.getReserves().call();
-      const pool : Pool = {
-        address: address,
-        tokenA: "0",
-        tokenB: "0",
-        reserveA: reserveA,
-        reserveB: reserveB,
-        ether: "0",
-      }
-      pools.push(pool);
+      pools.push(await this.getPoolFromAddress(address));
     }
 
     this.swaparooPoolsState$.next({pools});
@@ -106,4 +100,45 @@ export class ContractService {
     newState.users.push(newUser);
     this.usersState$.next(newState);
   }
+
+  public async createPool(addressTokenA: string, addressTokenB: string, userAddress: string) {
+    if(!this.swaparooCore) return;
+
+    // NOTE: somehow simply calling this.swaparooCore.methods.createPool(addressTokenA, addressTokenB) does not work.
+    const method = this.swaparooCore.methods.createPool(addressTokenA, addressTokenB);
+    await callContract({from: userAddress, method});
+  }
+
+  private listenToContractEvents() {
+    this.swaparooCore?.events.PoolAdded(async (error: any, result: any) => {
+      console.info('got Event: PoolAdded', result);
+      if (!error) {
+        console.log(result);
+        const poolAddress = result.returnValues[0];
+        const pool = await this.getPoolFromAddress(poolAddress);
+        const newState = this.swaparooPoolsState$.value;
+        newState.pools.push(pool);
+        this.swaparooPoolsState$.next(newState);
+      } else {
+        console.log(error);
+      }
+    });
+  }
+
+  private async getPoolFromAddress(address: string) : Promise<Pool> {
+      // @ts-ignore
+      const swaparooPool =  new this.web3.eth.Contract(SwaparooPool.abi, address);
+      const {'0': reserveA, '1': reserveB} = await swaparooPool?.methods.getReserves().call();
+      const {'0': tokenA, '1': tokenB} = await swaparooPool?.methods.getTokenAddresses().call();
+      const pool : Pool = {
+        address: address,
+        tokenA: tokenA,
+        tokenB: tokenB,
+        reserveA: reserveA,
+        reserveB: reserveB,
+        ether: "0",
+      }
+      return pool;
+  }
 }
+

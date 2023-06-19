@@ -13,6 +13,7 @@ import { ContractService } from 'src/app/services/contract.service';
 export class MainComponent {
   form: FormGroup;
   addUserForm: FormGroup;
+  addPoolForm: FormGroup;
   swaparooCoreAddress: string | undefined;
   swaparooCoreInitialized: boolean = false;
   swaparooCoreState: SwaparooCoreState | undefined;
@@ -27,9 +28,12 @@ export class MainComponent {
     this.form = this.formBuilder.group({
       swaparoo_core_address: ['', [Validators.required]],
     });
-
     this.addUserForm = this.formBuilder.group({
       user_address: ['', [Validators.required]],
+    });
+    this.addPoolForm = this.formBuilder.group({
+      addressTokenA: ['', [Validators.required]],
+      addressTokenB: ['', [Validators.required]],
     });
   }
 
@@ -74,6 +78,17 @@ export class MainComponent {
     if(this.usersState?.users?.length == 1) {
       this.selectedUser = this.usersState?.users[0];
     }
+  }
+
+  public async addPool() {
+    if(this.addPoolForm.invalid) {
+      return;
+    }
+    const addressTokenA = this.addPoolForm.get('addressTokenA')?.value;
+    const addressTokenB = this.addPoolForm.get('addressTokenB')?.value;
+
+    await this.contractService.createPool(addressTokenA, addressTokenB, this.selectedUser?.address ?? "");
+    this.addPoolForm.reset();
   }
 
   public async selectUser(user: User) {

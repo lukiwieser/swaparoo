@@ -50,7 +50,7 @@ contract SwaparooCore is AccessControlEnumerable {
     function createPool(address tokenA, address tokenB) external onlyRoleOwner {
         require(poolsMap[tokenA][tokenB] == address(0) && poolsMap[tokenB][tokenA] == address(0), "already-exists");
 
-        SwaparooPool pool = new SwaparooPool(tokenA, tokenB, "LP", "LP");
+        SwaparooPool pool = new SwaparooPool(tokenA, tokenB, "Swaparoo Liquidity Token", "LP");
         poolsMap[tokenA][tokenB] = address(pool);
         poolsArray.push(address(pool));
 
