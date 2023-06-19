@@ -1,1 +1,18 @@
-<p>main works!</p>
+<h1>Swaparoo</h1>
+
+<div *ngIf="!swaparooCoreAddress">
+    <p>Connect SwaparooCore</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+        <label for="swaparoo_core_address">SwaparooCore Address:</label> <br>
+        <input type="text" name="swaparoo_core_address" formControlName="swaparoo_core_address" id="swaparoo_core_address">
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<div *ngIf="swaparooCoreAddress">
+    <p>Connected SwaparooCore</p>
+    <p>{{swaparooCoreAddress}}</p>
+</div>
+
+
