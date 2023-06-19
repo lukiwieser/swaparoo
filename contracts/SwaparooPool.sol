@@ -49,8 +49,6 @@ contract SwaparooPool is DualDividendToken {
         return k;
     }
 
-    // TODO: spot-price / expected-price?
-
     function provideLiquidity(uint amountA, uint amountB) external {
         require(amountA > 0 && amountB > 0, "Number of tokens must be greater than 0");
 
