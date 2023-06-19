@@ -142,6 +142,22 @@ export class ContractService {
     await callContract({from: userAddress, method});
   }
 
+  public async addOwner(newOwnerAddress: string, userAddress: string) {
+    if(!this.swaparooCore) return;
+    await callContract({
+      from: userAddress,
+      method: this.swaparooCore.methods.addOwner(newOwnerAddress)
+    });
+  }
+
+  public async renounceOwner(userAddress: string) {
+    if(!this.swaparooCore) return;
+    await callContract({
+      from: userAddress,
+      method: this.swaparooCore.methods.renounceOwner()
+    });
+  }
+
   private listenToContractEvents() {
     this.swaparooCore?.events.PoolAdded(async (error: any, result: any) => {
       console.info('got Event: PoolAdded', result);
@@ -179,10 +195,11 @@ export class ContractService {
       for(const user of usersState.users) {
         const ether = this.web3.utils.fromWei(await this.web3.eth.getBalance(user.address), "ether");
         const tokenBalances = await this.getTokenBalancesOfUser(user.address);
+        const isOwner = await this.swaparooCore?.methods.isOwner(user.address).call();
         const updatedUser : User = {
           address: user.address,
           ether,
-          isOwner: user.isOwner,
+          isOwner,
           tokenBalances
         }
 

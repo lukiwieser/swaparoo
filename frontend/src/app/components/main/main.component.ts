@@ -14,6 +14,8 @@ export class MainComponent {
   form: FormGroup;
   addUserForm: FormGroup;
   addPoolForm: FormGroup;
+  addOwnerForm: FormGroup;
+  renounceOwnerForm: FormGroup;
   swaparooCoreAddress: string | undefined;
   swaparooCoreInitialized: boolean = false;
   swaparooCoreState: SwaparooCoreState | undefined;
@@ -34,6 +36,11 @@ export class MainComponent {
     this.addPoolForm = this.formBuilder.group({
       addressTokenA: ['', [Validators.required]],
       addressTokenB: ['', [Validators.required]],
+    });
+    this.addOwnerForm = this.formBuilder.group({
+      newOwnerAddress: ['', [Validators.required]],
+    });
+    this.renounceOwnerForm = this.formBuilder.group({
     });
   }
 
@@ -101,5 +108,19 @@ export class MainComponent {
 
   public async selectUser(user: User) {
     this.selectedUser = user;
+  }
+
+  public async addOwner() {
+    if(this.addOwnerForm.invalid) return;
+    if(!this.selectedUser) return;
+
+    const newOwnerAddress = this.addOwnerForm.get('newOwnerAddress')?.value;
+    await this.contractService.addOwner(newOwnerAddress, this.selectedUser.address);
+    this.addOwnerForm.reset();
+  }
+
+  public async renounceOwner() {
+    if(!this.selectedUser) return;
+    await this.contractService.renounceOwner(this.selectedUser.address);
   }
 }

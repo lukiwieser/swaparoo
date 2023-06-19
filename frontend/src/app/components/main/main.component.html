@@ -37,7 +37,6 @@
             <button (click)="selectUser(user)" [disabled]="user.address==selectedUser?.address">select</button>
             {{user.address}}
             <span *ngIf="user.isOwner===true">(Owner)</span>
-            <span>{{user.tokenBalances.length}}</span>
         </div>
     </div>
 
@@ -73,5 +72,30 @@
     <div *ngFor="let pool of swaparooPoolsState?.pools">
         <app-pool-item [pool]="pool" [selectedUser]="selectedUser"></app-pool-item>
     </div>
+
+    <hr>
+
+    <h3>Admin Area:</h3>
+    <div *ngIf="selectedUser?.isOwner===true">
+        <form [formGroup]="addOwnerForm" (ngSubmit)="addOwner()">
+            <fieldset style="display: inline-block">
+                <legend style="font-weight: bold">Add Owner</legend>
+    
+                <label for="newOwnerAddress">Address User:</label> 
+                <input type="text" name="newOwnerAddress" formControlName="newOwnerAddress" id="newOwnerAddress" style="width: 20rem;">
+                <br>
+
+                <button type="submit">Add</button>
+            </fieldset>
+        </form>
+
+        <form [formGroup]="renounceOwnerForm" (ngSubmit)="renounceOwner()">
+            <fieldset style="display: inline-block">
+                <legend style="font-weight: bold">Renounce Owner</legend>
+                <button type="submit">Renounce</button>
+            </fieldset>
+        </form>
+    </div>
+
 </div>    
 
