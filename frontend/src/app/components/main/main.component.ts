@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { SwaparooPoolsState } from 'src/app/models/PoolsState';
 import { SwaparooCoreState } from 'src/app/models/SwaparooCoreState';
-import { UsersState } from 'src/app/models/UserState';
+import { User, UsersState } from 'src/app/models/UserState';
 import { ContractService } from 'src/app/services/contract.service';
 
 @Component({
@@ -18,6 +18,7 @@ export class MainComponent {
   swaparooCoreState: SwaparooCoreState | undefined;
   swaparooPoolsState: SwaparooPoolsState | undefined;
   usersState: UsersState | undefined;
+  selectedUser: User | undefined;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -69,5 +70,13 @@ export class MainComponent {
     const address = this.addUserForm.get('user_address')?.value;
     await this.contractService.addUser(address);
     this.addUserForm.reset();
+
+    if(this.usersState?.users?.length == 1) {
+      this.selectedUser = this.usersState?.users[0];
+    }
+  }
+
+  public async selectUser(user: User) {
+    this.selectedUser = user;
   }
 }

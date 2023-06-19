@@ -13,21 +13,27 @@
 <div *ngIf="swaparooCoreAddress">
     <p>Connected SwaparooCore</p>
     <p>{{swaparooCoreState?.address}}</p>
-    <p>{{swaparooCoreState?.ether}}</p>
 
-    <p>Pools: ({{swaparooPoolsState?.pools?.length}})</p>
+    <hr>
 
-    <p>Users:</p>
+    <h3>Users ({{usersState?.users?.length}}):</h3>
     <form [formGroup]="addUserForm" (ngSubmit)="addUser()">
         <label for="user_address">SwaparooCore Address:</label> <br>
         <input type="text" name="user_address" formControlName="user_address" id="user_address">
         <button type="submit">Add</button>
     </form>
-    <p>{{usersState?.users?.length}}</p>
 
     <div *ngFor="let user of usersState?.users">
         <div>{{user.address}} {{user.isOwner}}</div>
+        <button (click)="selectUser(user)" [disabled]="user.address==selectedUser?.address">select</button>
+        <div *ngIf="user.address==selectedUser?.address">[selected]</div>
     </div>
+
+    <hr>
+
+    <h3>Pools ({{swaparooPoolsState?.pools?.length}}):</h3>
+
+    <!--0xe4Ec590FdF2a951F860756d4d4A6a0cea8747E47-->
 </div>
 
 
