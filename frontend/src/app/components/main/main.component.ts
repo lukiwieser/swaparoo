@@ -60,7 +60,7 @@ export class MainComponent {
   }
 
   private async connectToClient() {
-    const isConnected = await this.contractService.connectToClient("ws://localhost:9545") // TODO [providerPort] Edit for desired network
+    const isConnected = await this.contractService.connectToClient("ws://localhost:8546") // TODO [providerPort] Edit for desired network
     if (isConnected) {
       console.info("Connected!");
     } else {
