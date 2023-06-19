@@ -13,7 +13,8 @@ export class PoolItemComponent {
   @Input() pool!: Pool;
   @Input() selectedUser: User | undefined;
   provideLiqudityForm: FormGroup;
-  
+  removeLiqudityForm: FormGroup;
+
   ngOnChanges(changes: SimpleChanges) {
     this.selectedUser = changes['selectedUser']?.currentValue;
     console.log(changes);
@@ -27,6 +28,10 @@ export class PoolItemComponent {
       amountTokenA: ['', [Validators.required]],
       amountTokenB: ['', [Validators.required]],
     });
+
+    this.removeLiqudityForm = this.formBuilder.group({
+      sharesToRemove: ['', [Validators.required]],
+    });
   }
 
   public async provideLiquidity() {
@@ -39,5 +44,13 @@ export class PoolItemComponent {
     this.contractService.provideLiquidity(
       amountA, amountB, this.pool.address, this.pool.tokenA, this.pool.tokenB, this.selectedUser.address
     );
+  }
+
+  public async removeLiquidity() {
+    if(!this.selectedUser) return;
+    if(this.removeLiqudityForm.invalid) return;
+
+    const sharesToRemove = this.removeLiqudityForm.get('sharesToRemove')?.value;
+    this.contractService.removeLiquidity(sharesToRemove, this.pool.address, this.selectedUser.address);
   }
 }

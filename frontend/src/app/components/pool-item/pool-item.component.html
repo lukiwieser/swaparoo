@@ -17,4 +17,15 @@
         </fieldset>
     </form>
 
+    <form [formGroup]="removeLiqudityForm" (ngSubmit)="removeLiquidity()" *ngIf="selectedUser">
+        <fieldset style="display: inline-block">
+            <legend style="font-weight: bold;">Remove Liquidity</legend>
+
+            <label for="sharesToRemove">Liqudity Tokens to remove:</label> 
+            <input type="text" name="sharesToRemove" formControlName="sharesToRemove" id="sharesToRemove" style="width: 20rem;"> <br>
+
+            <button type="submit">Remove</button>
+        </fieldset>
+    </form>
+
 </div>

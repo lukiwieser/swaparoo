@@ -232,5 +232,15 @@ export class ContractService {
       method: swaparooPool?.methods.provideLiquidity(amountA, amountB)
     });
   }
+
+  
+  public async removeLiquidity(sharesToRemove: string, addressPool: string, userAddress: string) {
+    // @ts-ignore
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, addressPool);
+    await callContract({
+      from: userAddress, 
+      method: swaparooPool?.methods.removeLiquidity(sharesToRemove)
+    });
+  }
 }
 
