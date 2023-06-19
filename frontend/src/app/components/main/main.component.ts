@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { SwaparooPoolsState } from 'src/app/models/PoolsState';
 import { SwaparooCoreState } from 'src/app/models/SwaparooCoreState';
 import { ContractService } from 'src/app/services/contract.service';
 
@@ -13,6 +14,7 @@ export class MainComponent {
   swaparooCoreAddress: string | undefined;
   swaparooCoreInitialized: boolean = false;
   swaparooCoreState: SwaparooCoreState | undefined;
+  swaparooPoolsState: SwaparooPoolsState | undefined;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -26,6 +28,7 @@ export class MainComponent {
   async ngOnInit() {
     await this.connectToClient();
     this.contractService.swaparooCoreState$.subscribe(state => this.swaparooCoreState = state);
+    this.contractService.swaparooPoolsState$.subscribe(state => this.swaparooPoolsState = state);
   }
 
   private async connectToClient() {
