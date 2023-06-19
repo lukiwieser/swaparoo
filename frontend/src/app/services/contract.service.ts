@@ -259,5 +259,14 @@ export class ContractService {
       method: swaparooPool?.methods.swap(amountIn, addressTokenIn)
     });
   }
+
+  public async payoutDividends(poolAddress: string, userAddress: string) {
+    // @ts-ignore
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, poolAddress);
+    await callContract({
+      from: userAddress, 
+      method: swaparooPool?.methods.payoutDividends()
+    });
+  }
 }
 

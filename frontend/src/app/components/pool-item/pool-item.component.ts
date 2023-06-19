@@ -15,6 +15,7 @@ export class PoolItemComponent {
   provideLiqudityForm: FormGroup;
   removeLiqudityForm: FormGroup;
   swapForm: FormGroup;
+  dividendsForm: FormGroup;
 
   ngOnChanges(changes: SimpleChanges) {
     this.selectedUser = changes['selectedUser']?.currentValue;
@@ -37,6 +38,9 @@ export class PoolItemComponent {
     this.swapForm = this.formBuilder.group({
       tokenInAmount: ['', [Validators.required]],
       tokenInType: ['', [Validators.required]],
+    });
+
+    this.dividendsForm = this.formBuilder.group({
     });
   }
 
@@ -69,5 +73,10 @@ export class PoolItemComponent {
     const tokenInAddress = (tokenInType == "tokenA") ? this.pool.tokenA : this.pool.tokenB;
 
     this.contractService.swap(tokenInAmount, tokenInAddress, this.pool.address, this.selectedUser.address);
+  }
+
+  public async payoutDividends() {
+    if(!this.selectedUser) return;
+    this.contractService.payoutDividends(this.pool.address, this.selectedUser.address);
   }
 }

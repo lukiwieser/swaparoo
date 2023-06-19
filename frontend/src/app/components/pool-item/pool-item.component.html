@@ -39,7 +39,7 @@
               </label>
               <label>
                 <input type="radio" value="tokenB" formControlName="tokenInType">
-                  <span>token B</span>
+                  <span>Token B</span>
             </label>
 
             <br>
@@ -47,6 +47,13 @@
             <input type="text" name="tokenInAmount" formControlName="tokenInAmount" id="tokenInAmount" style="width: 20rem;"> <br>
 
             <button type="submit">Swap</button>
+        </fieldset>
+    </form>
+
+    <form [formGroup]="dividendsForm" (ngSubmit)="payoutDividends()" *ngIf="selectedUser">
+        <fieldset style="display: inline-block">
+            <legend style="font-weight: bold;">Payout Dividends</legend>
+            <button type="submit">Payout</button>
         </fieldset>
     </form>
 
