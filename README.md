@@ -72,6 +72,24 @@ The frontend should then be up and running at `localhost:4200`. It may take a fe
 
 There are also some dummy contracts for easier development & testing in `contracts/dummy-contracts`
 
+## Frontend
+
+This project provides a simple frontend to interact with the contracts.
+
+1. Connect to a SwaparooCore contract
+2. Add users, by specifying their addresses
+    - there is always one user "selected" and all information/actions on the frontend are done by this user
+    - similar if you login to e.g. google, there you can switch between your accounts, but at one time there is only one account active
+    - some users are owners, thus more options are displayed for them
+3. Interact with the contracts e.g.:
+    - deploy a new pool
+    - provide liquidity to an existing pool
+    - swap tokens on an existing pool
+    - remove liquidity from a pool
+    - grant others the role of owner
+
+In the section "User Balance" the ether and amounts of the ERC20 tokens of the user is displayed.
+
 ## Good to know
 
 After changing a smart contract, you can simply execute `npm run coco` in `smart-contracts` directory, to compile the contracts and copy the abi files into the frontend folder.
