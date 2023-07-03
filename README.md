@@ -1,12 +1,21 @@
 # Swaparoo
 
-A dencentralized ERC20 Token Exchange, using a Constant Product Market Maker.
+A decentralized ERC20 Token Exchange, using the concept of a Constant Product Market Maker.
+
+Swaparoo has "Pools" for different ERC20 token pairs (e.g. WETH-DAI):
+- Users can *provide tokens* to a pool, earning dividends as reward 
+- Users can *trade* one token for another on a pool (e.g. WETH for DAI, or vice versa).
+- Trading costs a small fee, which funds the dividends
+- Owners of Swaparoo can create new pools
+
+The cool thing is, that these pools are based on quite simple math formulas, and no complex logic is needed like pricing oracles.
+The exact type of math used as basis is a special form of a [Constant Function Market Maker](https://en.wikipedia.org/wiki/Constant_function_market_maker) called *Constant Product Market Maker*.
 
 ## Getting started
 
 This project requires [Node](https://nodejs.org/en) to be installed on your machine.
 
-### Install Dependecies
+### Install Dependencies
 
 The dependencies can be installed by executing the following command in the folders `frontend` & `smart-contracts`:
 
@@ -63,12 +72,12 @@ The frontend should then be up and running at `localhost:4200`. It may take a fe
   - Swapping costs fees, which are distributed proportional to `Users` that provide liquidity 
 - Provide Liquidity:
   - `Users` can provide tokens as liquidity to the contract
-  - they get special "liqudidity tokens" back in return
+  - they get special "liquidity tokens" back in return
 
 *DualDividendToken*:
 - is a ERC20 token that yields dividends in 2 assets
-- SwaparooPool inherits this contract, and uses it for it's liquidity tokens 
-- a core idea of this contract is, that the distribution of dividends is ammortized and not computed when profits are received, but rather when the users want to payout the dividends.
+- SwaparooPool inherits this contract, and uses it for its liquidity tokens 
+- a core idea of this contract is, that the distribution of dividends is amortized and not computed when profits are received, but rather when the users want to payout the dividends.
 
 There are also some dummy contracts for easier development & testing in `contracts/dummy-contracts`
 
