@@ -8,7 +8,7 @@
     "test": "truffle test",
     "coco": "npm run compile && npm run copy",
     "compile": "truffle compile",
-    "copy": "copyfiles -u 2 \"build/contracts/*.json\" frontend/src/abi"
+    "copy": "copyfiles -u 2 \"build/contracts/*.json\" ../frontend/src/abi"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.1",

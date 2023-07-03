@@ -670,7 +670,7 @@
   "sourceMap": "67:493:16:-:0;;;160:45;;;;;;;;;-1:-1:-1;181:5:16;:18;;-1:-1:-1;;;;;;181:18:16;189:10;181:18;;;67:493;;;;;;",
   "deployedSourceMap": "67:493:16:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;389:168;;;;;;:::i;:::-;;:::i;:::-;;117:36;;;;;;;;;474:25:23;;;462:2;447:18;117:36:16;;;;;;;;92:20;;;;;;;;;;;;686:42:23;674:55;;;656:74;;644:2;629:18;92:20:16;510:226:23;278:105:16;;;;;;:::i;:::-;;:::i;389:168::-;258:5;;;;244:10;:19;240:26;;526:24:::1;::::0;504:47:::1;::::0;;;;485:11;;504:21:::1;::::0;::::1;::::0;::::1;::::0;:47:::1;::::0;::::1;;474:25:23::0;;;462:2;447:18;;328:177;504:47:16::1;;;;;;;;;;;;;;;;;;::::0;::::1;;;;;;;;;;;;::::0;::::1;;;;;;;;;445:112;240:26:::0;389:168;:::o;278:105::-;258:5;;;;244:10;:19;240:26;;341:24:::1;:36:::0;278:105::o;14:309:23:-;73:6;126:2;114:9;105:7;101:23;97:32;94:52;;;142:1;139;132:12;94:52;181:9;168:23;231:42;224:5;220:54;213:5;210:65;200:93;;289:1;286;279:12;200:93;312:5;14:309;-1:-1:-1;;;14:309:23:o;741:180::-;800:6;853:2;841:9;832:7;828:23;824:32;821:52;;;869:1;866;859:12;821:52;-1:-1:-1;892:23:23;;741:180;-1:-1:-1;741:180:23:o",
   "source": "// SPDX-License-Identifier: UNLICENSED\r\npragma solidity ^0.8.0;\r\n\r\ncontract Migrations {\r\n  address public owner;\r\n  uint public last_completed_migration;\r\n\r\n  constructor() {\r\n    owner = msg.sender;\r\n  }\r\n\r\n  modifier restricted() {\r\n    if (msg.sender == owner) _;\r\n  }\r\n\r\n  function setCompleted(uint completed) public restricted {\r\n    last_completed_migration = completed;\r\n  }\r\n\r\n  function upgrade(address new_address) public restricted {\r\n    Migrations upgraded = Migrations(new_address);\r\n    upgraded.setCompleted(last_completed_migration);\r\n  }\r\n}\r\n\r\n",
-  "sourcePath": "C:\\Users\\lukas\\Documents\\git\\e11809647\\contracts\\Migrations.sol",
+  "sourcePath": "C:\\Users\\lukas\\Documents\\git\\swaparoo\\smart-contracts\\contracts\\Migrations.sol",
   "ast": {
     "absolutePath": "project:/contracts/Migrations.sol",
     "exportedSymbols": {
@@ -1325,16 +1325,9 @@
     "name": "solc",
     "version": "0.8.19+commit.7dd6d404.Emscripten.clang"
   },
-  "networks": {
-    "5777": {
-      "events": {},
-      "links": {},
-      "address": "0x94513F5Dc1e4C60C0089DbD594Cc3fe87137ba88",
-      "transactionHash": "0x5d558dcbf3f9b36be7907a5e28bfac2c18b741e19398d06030ee2d90a6d289a2"
-    }
-  },
+  "networks": {},
   "schemaVersion": "3.4.13",
-  "updatedAt": "2023-06-19T10:04:16.449Z",
+  "updatedAt": "2023-07-03T15:03:00.392Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
