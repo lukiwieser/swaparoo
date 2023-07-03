@@ -34,3 +34,5 @@ Open a new console window, and start the frontend by executing in the folder `fr
 ```bash
 npm run start
 ```
+
+The frontend should then be up and running at `localhost:4200`. It may take a few seconds for everything to start.
