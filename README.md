@@ -96,9 +96,14 @@ After changing a smart contract, you can simply execute `npm run coco` in `smart
 
 ## Attribution
 
-This project was orginally created as part of a lecture at the *Vienna University of Technology*.
+This project was originally created as part of a lecture at the *Vienna University of Technology*.
 
 This project uses some external resources and inspirations:
 
 - [Theory of Constant Product Market Maker (Video)](https://www.youtube.com/watch?v=QNPyFs8Wybk)
 - [Dividend yielding tokens (Article)](https://weka.medium.com/dividend-bearing-tokens-on-ethereum-42d01c710657)
+
+The following sources can also be interesting to look at:
+
+- [Uniswap V2 Contracts](https://github.com/Uniswap/v2-core/tree/master/contracts)
+- [AAVE V2 Contracts](https://github.com/aave/protocol-v2/blob/master/contracts/protocol/lendingpool/LendingPool.sol)
