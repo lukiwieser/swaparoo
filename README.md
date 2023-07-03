@@ -36,3 +36,12 @@ npm run start
 ```
 
 The frontend should then be up and running at `localhost:4200`. It may take a few seconds for everything to start.
+
+## Attribution
+
+This project was orginally created as part of a lecture at the *Vienna University of Technology*.
+
+This project uses some external resources and inspirations:
+
+- [Theory of Constant Product Market Maker (Video)](https://www.youtube.com/watch?v=QNPyFs8Wybk)
+- [Dividend yielding tokens (Article)](https://weka.medium.com/dividend-bearing-tokens-on-ethereum-42d01c710657)
