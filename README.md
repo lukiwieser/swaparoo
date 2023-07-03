@@ -72,6 +72,10 @@ The frontend should then be up and running at `localhost:4200`. It may take a fe
 
 There are also some dummy contracts for easier development & testing in `contracts/dummy-contracts`
 
+## Good to know
+
+After changing a smart contract, you can simply execute `npm run coco` in `smart-contracts` directory, to compile the contracts and copy the abi files into the frontend folder.
+
 ## Attribution
 
 This project was orginally created as part of a lecture at the *Vienna University of Technology*.
