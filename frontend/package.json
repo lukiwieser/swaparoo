@@ -1,6 +1,8 @@
 {
-  "name": "frontend",
-  "version": "0.0.0",
+  "name": "swaparoo-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Swaparoo, a decentralized ERC20 Token Exchange, using the concept of a Constant Product Market Maker.",
+  "author": "Lukas Wieser",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

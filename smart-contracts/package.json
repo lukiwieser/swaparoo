@@ -1,8 +1,8 @@
 {
-  "name": "final-project",
+  "name": "swaparoo",
   "version": "1.0.0",
-  "description": "Final solidity project with frontend client",
-  "author": "Smart Contracts; TU Wien",
+  "description": "A decentralized ERC20 Token Exchange, using the concept of a Constant Product Market Maker.",
+  "author": "Lukas Wieser",
   "scripts": {
     "dev": "truffle develop",
     "test": "truffle test",
