@@ -118,43 +118,4 @@ contract("SwaparooCore", async accounts => {
             );
         });
     });
-    /*
-    describe('#remove-pool', function () {
-    it("remove pool works", async () => {
-    // create two pools
-    await swaparooCore.createPool(goldToken.address, silverToken.address);
-    await swaparooCore.createPool(goldToken.address, bronzeToken.address);
-    
-    // remove one pool
-    await swaparooCore.removePool(goldToken.address, silverToken.address);
-    
-    const pools = await swaparooCore.poolsArray.call();
-    assert(pools.length == 1, "There should be only 1 pools existing");
-    
-    const removedPoolAddress = await swaparooCore.getPoolByTokens(goldToken.address, silverToken.address);
-    assert(removedPoolAddress == "0x0000000000000000000000000000000000000000", "Address should be zero address")
-    });
-    
-    it("remove non-existing pool reverts", async () => {
-    // create pool
-    await swaparooCore.createPool(goldToken.address, silverToken.address);
-    // remove different pool
-    await truffleAssert.reverts(
-    swaparooCore.removePool(bronzeToken.address, silverToken.address),
-    "not-found"
-    );
-    });
-    
-    it("only owner can remove pools", async () => {
-    // create two pools
-    await swaparooCore.createPool(goldToken.address, silverToken.address);
-    await swaparooCore.createPool(goldToken.address, bronzeToken.address);
-    
-    await truffleAssert.reverts(
-    swaparooCore.removePool(goldToken.address, silverToken.address, {from: billy}),
-    "unauthorized"
-    );
-    });
-    });
-    */
 });

@@ -13,7 +13,6 @@ contract SwaparooCore is AccessControlEnumerable {
     event OwnerAdded(address account);
     event OwnerRemoved(address account);
     event PoolAdded(address pool, address tokenA, address tokenB);
-    event PoolRemoved(address pool, address tokenA, address tokenB);
 
     constructor() {
         _grantRole(ROLE_OWNER, msg.sender);
@@ -56,28 +55,4 @@ contract SwaparooCore is AccessControlEnumerable {
 
         emit PoolAdded(address(pool), tokenA, tokenB);
     }
-
-    /*
-    function removePool(address tokenA, address tokenB) external onlyRoleOwner {
-        require(poolsMap[tokenA][tokenB] != address(0) && poolsMap[tokenB][tokenA] != address(0), "not-found");
-
-        // find index of poolsArray
-        address poolAddress = poolsMap[tokenA][tokenB];
-        uint poolIndex = 0;
-        for(uint i = 0; i < poolsArray.length; i++) {
-            if(poolsArray[i] == poolAddress) {
-                poolIndex = i;
-                break;
-            }
-        }
-
-        // delete from array & mapping
-        poolsArray[poolIndex] = poolsArray[poolsArray.length-1];
-        poolsArray.pop();
-        delete poolsMap[tokenA][tokenB];
-        delete poolsMap[tokenB][tokenA];
-
-        emit PoolRemoved(poolAddress, tokenA, tokenB);
-    }
-    */
 }
