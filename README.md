@@ -81,6 +81,12 @@ The frontend should then be up and running at `localhost:4200`. It may take a fe
 
 There are also some dummy contracts for easier development & testing in `contracts/dummy-contracts`
 
+## Testcases
+
+Testcases for the smart contracts are definined in the folder `smart-contracts/test`.
+
+You can run all testcases with `npm run test`, or by specifing a file e.g. `npm run test test/SwaparooCore.js`.
+
 ## Frontend
 
 This project provides a simple frontend to interact with the contracts.
