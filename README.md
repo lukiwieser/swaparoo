@@ -107,7 +107,7 @@ In the section "User Balance" the ether and amounts of the ERC20 tokens of the u
 
 ## Good to know
 
-After changing a smart contract, you can simply execute `npm run coco` in `smart-contracts` directory, to compile the contracts and copy the abi files into the frontend folder.
+After changing a smart contract, you can simply execute `npm run postinstall` in `smart-contracts` directory, to compile the contracts and copy the abi files into the frontend folder.
 
 ## Attribution
 
