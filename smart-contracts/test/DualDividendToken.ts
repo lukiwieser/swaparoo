@@ -6,9 +6,9 @@ const SimpleDualDividendToken = artifacts.require("SimpleDualDividendToken");
 
 contract("DualDividendToken", async accounts => {
     // contracts:
-    let goldToken : GLDTokenInstance;
-    let silverToken : SILTokenInstance;
-    let dividendToken : SimpleDualDividendTokenInstance;
+    let goldToken: GLDTokenInstance;
+    let silverToken: SILTokenInstance;
+    let dividendToken: SimpleDualDividendTokenInstance;
 
     // accounts:
     const owner = accounts[0];

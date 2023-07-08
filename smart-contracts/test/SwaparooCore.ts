@@ -1,6 +1,6 @@
 import { BRZTokenInstance, GLDTokenInstance, SILTokenInstance, SwaparooCoreInstance } from "../types/truffle-contracts";
 
-const truffleAssert = require('truffle-assertions');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");
@@ -10,10 +10,10 @@ const SwaparooPool = artifacts.require("SwaparooPool");
 
 contract("SwaparooCore", async accounts => {
     // contracts:
-    let goldToken : GLDTokenInstance;
-    let silverToken : SILTokenInstance;
-    let bronzeToken : BRZTokenInstance;
-    let swaparooCore : SwaparooCoreInstance;
+    let goldToken: GLDTokenInstance;
+    let silverToken: SILTokenInstance;
+    let bronzeToken: BRZTokenInstance;
+    let swaparooCore: SwaparooCoreInstance;
 
     // accounts:
     const owner = accounts[0];
@@ -41,9 +41,9 @@ contract("SwaparooCore", async accounts => {
         it("owner can grant others role of owner", async () => {
             const result = await swaparooCore.addOwner(billy);
             
-            truffleAssert.eventEmitted(result, 'OwnerAdded', (ev: any) => {
-                return ev['account'] === billy;
-            }, 'OwnerAdded should be emitted with correct parameters');
+            expectEvent(result, 'OwnerAdded', {
+                account: billy,
+            });
         });
         
         it("owner can renounce, if there are other owners", async () => {
@@ -51,36 +51,38 @@ contract("SwaparooCore", async accounts => {
             
             const result = await swaparooCore.renounceOwner();
             
-            truffleAssert.eventEmitted(result, 'OwnerRemoved', (ev: any) => {
-                return ev['account'] === owner;
-            }, 'OwnerRemoved should be emitted with correct parameters');
+            expectEvent(result, 'OwnerRemoved', {
+                account: owner,
+            });
             
             assert(!await swaparooCore.isOwner(owner));
         });
         
         it("others cannot add owners", async () => {
-            await truffleAssert.reverts(
+            await expectRevert(
                 swaparooCore.addOwner(billy, {from: alice}),
                 "unauthorized"
             );
         });
         
         it("owner cannot renounce, if they are the only owner", async () => {
-            await truffleAssert.reverts(
+            await expectRevert(
                 swaparooCore.renounceOwner(),
                 "only-owner"
             );
         });
-    });
         
+    });
+    
     describe('#create-pool', function () {
         it("create pool works", async () => {
             const tx = await swaparooCore.createPool(goldToken.address, silverToken.address);
             
             // correct event emitted
-            truffleAssert.eventEmitted(tx, 'PoolAdded', (ev: any) => {
-                return ev['tokenA'] === goldToken.address && ev['tokenB'] === silverToken.address;
-            }, 'PoolAdded should be emitted with correct parameters');
+            expectEvent(tx, 'PoolAdded', {
+                tokenA: goldToken.address,
+                tokenB: silverToken.address,
+            });
             
             // deploys one contract
             const pools = await swaparooCore.getPools();
@@ -94,11 +96,11 @@ contract("SwaparooCore", async accounts => {
         it("create duplicate pool reverts", async () => {
             await swaparooCore.createPool(goldToken.address, silverToken.address);
             // try creating duplicate pools:
-            await truffleAssert.reverts(
+            await expectRevert(
                 swaparooCore.createPool(goldToken.address, silverToken.address),
                 "already-exists"
             );
-            await truffleAssert.reverts(
+            await expectRevert(
                 swaparooCore.createPool(silverToken.address, goldToken.address),
                 "already-exists"
             );
@@ -114,7 +116,7 @@ contract("SwaparooCore", async accounts => {
         });
         
         it("only owner can create pools", async () => {
-            await truffleAssert.reverts(
+            await expectRevert(
                 swaparooCore.createPool(goldToken.address, silverToken.address, {from: billy}),
                 "unauthorized"
             );

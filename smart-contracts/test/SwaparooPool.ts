@@ -1,6 +1,6 @@
 import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../types/truffle-contracts";
 
-const truffleAssert = require('truffle-assertions');
+const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");
@@ -8,9 +8,9 @@ const SwaparooPool = artifacts.require("SwaparooPool");
 
 contract("SwaparooPool", async accounts => {
     // contracts:
-    let goldToken : GLDTokenInstance;
-    let silverToken : SILTokenInstance;
-    let pool : SwaparooPoolInstance;
+    let goldToken: GLDTokenInstance;
+    let silverToken: SILTokenInstance;
+    let pool: SwaparooPoolInstance;
     
     // accounts:
     const owner = accounts[0];
@@ -38,15 +38,16 @@ contract("SwaparooPool", async accounts => {
 
     describe('#create-contract', function () {
         it("create pool with non-contract address reverts", async () => {
-            await truffleAssert.reverts(SwaparooPool.new(liquidityProvider1, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
-            await truffleAssert.reverts(SwaparooPool.new(silverToken.address, liquidityProvider1, "Liquidity Pool Shares", "LP-GLD-SLV"));
+            await expectRevert(SwaparooPool.new(liquidityProvider1, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"),"Tokens must be contracts");
+            await expectRevert(SwaparooPool.new(silverToken.address, liquidityProvider1, "Liquidity Pool Shares", "LP-GLD-SLV"),"Tokens must be contracts");
         });
         
         it("create pool with the same addresses reverts", async () => {
-            await truffleAssert.reverts(SwaparooPool.new(silverToken.address, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"));
+            await expectRevert(SwaparooPool.new(silverToken.address, silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV"),"TokenA must be different from TokenB");
         });
+        
     });
-
+    
     describe('#liquidity', function () {
         it("provide initial liquidity works", async () => {
             const amountGold = web3.utils.toBN('200000000000000000');
@@ -94,8 +95,9 @@ contract("SwaparooPool", async accounts => {
             await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1)
         
             // further liqudity (ratio 3 : 10)
-            await truffleAssert.reverts(
-            _provideLiquidity(web3.utils.toBN('30000000000000000'), goldToken, web3.utils.toBN('100000000000000000'), silverToken, pool, liquidityProvider1)
+            await expectRevert(
+                _provideLiquidity(web3.utils.toBN('30000000000000000'), goldToken, web3.utils.toBN('100000000000000000'), silverToken, pool, liquidityProvider1),
+                "Wrong proportion"
             );
         });
         
@@ -155,7 +157,7 @@ contract("SwaparooPool", async accounts => {
         });
 
         it("remove liquidity when no liquidity was provided reverts", async () => {
-            await truffleAssert.reverts(pool.removeLiquidity(web3.utils.toBN("1"), {from: liquidityProvider1}));
+            await expectRevert(pool.removeLiquidity(web3.utils.toBN("1"), {from: liquidityProvider1}),"No liquidity");
         });
 
         it("liquidity tokens can be transfered", async () => {
@@ -334,4 +336,5 @@ contract("SwaparooPool", async accounts => {
             assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance wrong");
         });
     });
+    
 });    
