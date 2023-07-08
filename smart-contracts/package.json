@@ -6,11 +6,10 @@
   "scripts": {
     "dev": "truffle develop",
     "test": "truffle test",
-    "coco": "npm run compile && npm run copy",
     "compile": "truffle compile",
     "copy": "copyfiles -u 2 \"build/contracts/*.json\" ../frontend/src/abi",
     "generate-types": "npx typechain --target=truffle-v5 'build/contracts/*.json'",
-    "postinstall": "npx truffle compile && npm run generate-types"
+    "postinstall": "npm run compile && npm run generate-types && npm run copy"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.1"

@@ -1786,8 +1786,8 @@
     "version": "0.8.19+commit.7dd6d404.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.13",
-  "updatedAt": "2023-07-03T15:03:00.345Z",
+  "schemaVersion": "3.4.14",
+  "updatedAt": "2023-07-08T22:39:33.040Z",
   "devdoc": {
     "details": "Extension of {AccessControl} that allows enumerating the members of each role.",
     "events": {
