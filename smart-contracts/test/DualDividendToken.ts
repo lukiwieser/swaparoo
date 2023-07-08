@@ -1,14 +1,20 @@
-const truffleAssert = require('truffle-assertions');
+declare const artifacts: any;
+declare const web3: any;
+declare const contract: any;
+
+import { GLDTokenInstance, SILTokenInstance, SimpleDualDividendTokenInstance } from '../types/truffle-contracts';
+//const truffleAssert = require('truffle-assertions');
 
 const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");
 const SimpleDualDividendToken = artifacts.require("SimpleDualDividendToken");
 
-contract("DualDividendToken", async accounts => {
+
+contract("DualDividendToken", async (accounts: string[]) => {
     // contracts:
-    let goldToken;
-    let silverToken;
-    let dividendToken;
+    let goldToken : GLDTokenInstance;
+    let silverToken : SILTokenInstance;
+    let dividendToken : SimpleDualDividendTokenInstance;
 
     // accounts:
     const owner = accounts[0];

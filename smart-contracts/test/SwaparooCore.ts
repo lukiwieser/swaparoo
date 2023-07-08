@@ -1,3 +1,5 @@
+import { BRZTokenInstance, GLDTokenInstance, SILTokenInstance, SwaparooCoreInstance } from "../types/truffle-contracts";
+
 const truffleAssert = require('truffle-assertions');
 
 const GLDToken = artifacts.require("GLDToken");
@@ -8,11 +10,11 @@ const SwaparooPool = artifacts.require("SwaparooPool");
 
 contract("SwaparooCore", async accounts => {
     // contracts:
-    let goldToken;
-    let silverToken;
-    let bronzeToken;
-    let swaparooCore;
-    
+    let goldToken : GLDTokenInstance;
+    let silverToken : SILTokenInstance;
+    let bronzeToken : BRZTokenInstance;
+    let swaparooCore : SwaparooCoreInstance;
+
     // accounts:
     const owner = accounts[0];
     const billy = accounts[1];
@@ -39,7 +41,7 @@ contract("SwaparooCore", async accounts => {
         it("owner can grant others role of owner", async () => {
             const result = await swaparooCore.addOwner(billy);
             
-            truffleAssert.eventEmitted(result, 'OwnerAdded', (ev) => {
+            truffleAssert.eventEmitted(result, 'OwnerAdded', (ev: any) => {
                 return ev['account'] === billy;
             }, 'OwnerAdded should be emitted with correct parameters');
         });
@@ -49,7 +51,7 @@ contract("SwaparooCore", async accounts => {
             
             const result = await swaparooCore.renounceOwner();
             
-            truffleAssert.eventEmitted(result, 'OwnerRemoved', (ev) => {
+            truffleAssert.eventEmitted(result, 'OwnerRemoved', (ev: any) => {
                 return ev['account'] === owner;
             }, 'OwnerRemoved should be emitted with correct parameters');
             
@@ -76,7 +78,7 @@ contract("SwaparooCore", async accounts => {
             const tx = await swaparooCore.createPool(goldToken.address, silverToken.address);
             
             // correct event emitted
-            truffleAssert.eventEmitted(tx, 'PoolAdded', (ev) => {
+            truffleAssert.eventEmitted(tx, 'PoolAdded', (ev: any) => {
                 return ev['tokenA'] === goldToken.address && ev['tokenB'] === silverToken.address;
             }, 'PoolAdded should be emitted with correct parameters');
             

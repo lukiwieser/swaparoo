@@ -1,3 +1,5 @@
+import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../types/truffle-contracts";
+
 const truffleAssert = require('truffle-assertions');
 
 const GLDToken = artifacts.require("GLDToken");
@@ -6,9 +8,9 @@ const SwaparooPool = artifacts.require("SwaparooPool");
 
 contract("SwaparooPool", async accounts => {
     // contracts:
-    let goldToken;
-    let silverToken;
-    let pool;
+    let goldToken : GLDTokenInstance;
+    let silverToken : SILTokenInstance;
+    let pool : SwaparooPoolInstance;
     
     // accounts:
     const owner = accounts[0];
@@ -61,7 +63,7 @@ contract("SwaparooPool", async accounts => {
         });
         
         it("provide further liqudity with correct ratio works", async () => {
-            async function _provideLiquidity(_amountTokenA, _contractTokenA, _amountTokenB, _contractTokenB, _pool, _account) {
+            async function _provideLiquidity(_amountTokenA: any, _contractTokenA: any, _amountTokenB: any, _contractTokenB: any, _pool: any, _account: any) {
                 await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
                 await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
                 await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
@@ -82,7 +84,7 @@ contract("SwaparooPool", async accounts => {
         });
 
         it("provide further liqudity with incorrect ratio reverts", async () => {
-            async function _provideLiquidity(_amountTokenA, _contractTokenA, _amountTokenB, _contractTokenB, _pool, _account) {
+            async function _provideLiquidity(_amountTokenA: any, _contractTokenA: any, _amountTokenB: any, _contractTokenB: any, _pool: any, _account: any) {
                 await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
                 await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
                 await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
@@ -132,7 +134,7 @@ contract("SwaparooPool", async accounts => {
         });
 
         it("remove all liquidity & provide again works", async () => {
-            async function _provideLiquidity(_amountTokenA, _contractTokenA, _amountTokenB, _contractTokenB, _pool, _account) {
+            async function _provideLiquidity(_amountTokenA: any, _contractTokenA: any, _amountTokenB: any, _contractTokenB: any, _pool: any, _account: any) {
                 await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
                 await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
                 await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
@@ -265,7 +267,7 @@ contract("SwaparooPool", async accounts => {
         });
         
         it("swap does not change k", async () => {
-            async function _swap(_amountTokenIn, _contractTokenIn, _account) {
+            async function _swap(_amountTokenIn: any, _contractTokenIn: any, _account: any) {
                 await _contractTokenIn.approve(pool.address, _amountTokenIn, {from: _account});
                 await pool.swap(_amountTokenIn, _contractTokenIn.address, {from: _account})
             }

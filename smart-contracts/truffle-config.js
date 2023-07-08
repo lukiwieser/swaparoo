@@ -7,6 +7,10 @@
 
 const path = require("path");
 
+require("ts-node").register({
+  files: true,
+});
+
 module.exports = {
   compilers: {
     solc: {
