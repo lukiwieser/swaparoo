@@ -19,18 +19,14 @@ contract("SwaparooCore", async accounts => {
     const owner = accounts[0];
     const billy = accounts[1];
     const alice = accounts[2];
-
-    async function deployAndInit() {
+ 
+    beforeEach("deploy and init", async () => {
         // deployed behaves like a singleton. It will look if there is already an instance of the contract deployed to the blockchain via deployer.deploy. The information about which contract has which address on which network is stored in the build folder. new will always create a new instance. [https://ethereum.stackexchange.com/questions/42094/should-i-use-new-or-deployed-in-truffle-unit-tests]
-        // Note: "owner" will have the initial balance
+        // "owner" will have the initial balance of the tokens
         goldToken = await GLDToken.new(web3.utils.toBN('10000000000000000000'));
         silverToken = await SILToken.new(web3.utils.toBN('10000000000000000000'));
         bronzeToken = await BRZToken.new(web3.utils.toBN('10000000000000000000'));
         swaparooCore = await SwaparooCore.new();
-    }
-        
-    beforeEach("deploy and init", async () => {
-        await deployAndInit();
     });
         
     describe('#manage-role-owner', function () {

@@ -18,9 +18,9 @@ contract("SwaparooPool", async accounts => {
     const liquidityProvider2 = accounts[2];
     const swapper1 = accounts[3];
 
-    async function deployAndInit() {
+    beforeEach("deploy and init", async () => {
         // deployed behaves like a singleton. It will look if there is already an instance of the contract deployed to the blockchain via deployer.deploy. The information about which contract has which address on which network is stored in the build folder. new will always create a new instance. [https://ethereum.stackexchange.com/questions/42094/should-i-use-new-or-deployed-in-truffle-unit-tests]
-        // Note: "owner" will have the initial balance
+        // "owner" will have the initial balance of the tokens
         goldToken = await GLDToken.new(web3.utils.toBN('10000000000000000000'));
         silverToken = await SILToken.new(web3.utils.toBN('10000000000000000000'));
 
@@ -30,10 +30,6 @@ contract("SwaparooPool", async accounts => {
         await silverToken.transfer(swapper1, web3.utils.toBN('500000000000000000'));
 
         pool = await SwaparooPool.new(goldToken.address,silverToken.address, "Liquidity Pool Shares", "LP-GLD-SLV");
-    }
-
-    beforeEach("deploy and init", async () => {
-        await deployAndInit();
     });
 
     describe('#create-contract', function () {
