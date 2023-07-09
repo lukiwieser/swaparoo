@@ -5,7 +5,6 @@
  * https://trufflesuite.com/docs/truffle/reference/configuration/
  */
 
-const path = require("path");
 
 require("ts-node").register({
   files: true,
@@ -25,6 +24,7 @@ module.exports = {
   },
 
   // TODO - Here you can specify the output directory for the compiled ABIs
+  // const path = require("path");
   // contracts_build_directory: path.join(__dirname, "frontend/abi")
 
   /**
@@ -45,12 +45,6 @@ module.exports = {
     ganache: {
       host: "127.0.0.1",
       port: 7545, // e.g. default port of Ganache
-      network_id: "*"
-    },
-    // This network can be used to deploy directly to the LVA-Chain. Check that your Geth-Client is up and running!
-    lva: {
-      host: "127.0.0.1",
-      port: 8545,
       network_id: "*"
     },
   }
