@@ -3,7 +3,6 @@
 # Compiled output
 /dist
 /build
-/types
 
 # Node
 /node_modules
