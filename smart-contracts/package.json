@@ -8,7 +8,7 @@
     "test": "truffle test",
     "compile": "truffle compile",
     "copy": "copyfiles -f build/contracts/abi/*.json ../frontend/src/contracts/abi",
-    "generate-types": "npx typechain --target=truffle-v5 'build/contracts/*.json'",
+    "generate-types": "npx typechain --target=truffle-v5 'build/contracts/abi/*.json' --out-dir ./build/contracts/types",
     "postinstall": "npm run compile && npm run generate-types && npm run copy"
   },
   "dependencies": {

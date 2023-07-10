@@ -1,4 +1,4 @@
-import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../types/truffle-contracts";
+import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../build/contracts/types";
 
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
