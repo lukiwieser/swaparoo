@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import Web3 from 'web3';
-import SwaparooCore from '../../abi/SwaparooCore.json';
-import SwaparooPool from '../../abi/SwaparooPool.json';
+import SwaparooCore from '../../contracts/abi/SwaparooCore.json';
+import SwaparooPool from '../../contracts/abi/SwaparooPool.json';
 import Contract from 'web3-eth-contract';
 import { SwaparooCoreState, initalSwaparooCoreState } from '../models/SwaparooCoreState';
 import { BehaviorSubject } from 'rxjs';
 import { SwaparooPoolsState, initialSwaparooPoolsState, Pool } from '../models/PoolsState';
 import { TokenBalance, User, UsersState, initialUsersState } from '../models/UserState';
-import { CallOptions, callContract} from "./utils";
-import ERC20 from '../../abi/ERC20.json';
+import { callContract} from "./utils";
+import ERC20 from '../../contracts/abi/ERC20.json';
 import { TokensState, initialTokensState } from '../models/TokensState';
 
 @Injectable({

@@ -11,6 +11,8 @@ require("ts-node").register({
 });
 
 module.exports = {
+  contracts_build_directory: "./build/contracts/abi",
+  // Use optimizer to decrease contract size, since contracts have a size limit.
   compilers: {
     solc: {
       version: '0.8.19',
@@ -22,11 +24,6 @@ module.exports = {
       }
     }
   },
-
-  // TODO - Here you can specify the output directory for the compiled ABIs
-  // const path = require("path");
-  // contracts_build_directory: path.join(__dirname, "frontend/abi")
-
   /**
    * Networks define how you connect to your ethereum client.
    *
