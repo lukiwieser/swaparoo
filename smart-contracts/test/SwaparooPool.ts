@@ -1,4 +1,4 @@
-import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../build/contracts/types";
+import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../build/contracts/truffle-types";
 
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
@@ -332,5 +332,4 @@ contract("SwaparooPool", async accounts => {
             assert(balanceSilverAfter.eq(balanceSilverExpected), "Silver balance wrong");
         });
     });
-    
 });    

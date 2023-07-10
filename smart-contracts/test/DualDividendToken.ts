@@ -1,4 +1,4 @@
-import { GLDTokenInstance, SILTokenInstance, SimpleDualDividendTokenInstance } from '../build/contracts/types';
+import { GLDTokenInstance, SILTokenInstance, SimpleDualDividendTokenInstance } from '../build/contracts/truffle-types';
 
 const GLDToken = artifacts.require("GLDToken");
 const SILToken = artifacts.require("SILToken");

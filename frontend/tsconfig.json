@@ -3,6 +3,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",

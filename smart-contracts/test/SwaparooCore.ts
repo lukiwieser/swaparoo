@@ -1,4 +1,4 @@
-import { BRZTokenInstance, GLDTokenInstance, SILTokenInstance, SwaparooCoreInstance } from "../build/contracts/types";
+import { BRZTokenInstance, GLDTokenInstance, SILTokenInstance, SwaparooCoreInstance } from "../build/contracts/truffle-types";
 
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 

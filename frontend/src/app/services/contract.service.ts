@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import Web3 from 'web3';
 import SwaparooCore from '../../contracts/abi/SwaparooCore.json';
 import SwaparooPool from '../../contracts/abi/SwaparooPool.json';
-import Contract from 'web3-eth-contract';
 import { SwaparooCoreState, initalSwaparooCoreState } from '../models/SwaparooCoreState';
 import { BehaviorSubject } from 'rxjs';
 import { SwaparooPoolsState, initialSwaparooPoolsState, Pool } from '../models/PoolsState';
@@ -10,6 +9,11 @@ import { TokenBalance, User, UsersState, initialUsersState } from '../models/Use
 import { callContract} from "./utils";
 import ERC20 from '../../contracts/abi/ERC20.json';
 import { TokensState, initialTokensState } from '../models/TokensState';
+import { SwaparooCore as SwaparooCoreContract } from 'src/contracts/web3-types';
+import { SwaparooPool as SwaparooPoolContract } from 'src/contracts/web3-types';
+import { ERC20 as ERC20Contract } from 'src/contracts/web3-types';
+import { AbiItem } from 'web3-utils';
+
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +21,7 @@ import { TokensState, initialTokensState } from '../models/TokensState';
 export class ContractService {
   private web3!: Web3;
 
-  public swaparooCore: Contract | undefined;
+  public swaparooCore: SwaparooCoreContract | undefined;
   
   public swaparooCoreState$ = new BehaviorSubject<SwaparooCoreState>(initalSwaparooCoreState);
   public swaparooPoolsState$ = new BehaviorSubject<SwaparooPoolsState>(initialSwaparooPoolsState);
@@ -59,8 +63,8 @@ export class ContractService {
   }
 
   private async initSwaparooCoreContract(address: string) {
-    // @ts-ignore
-    this.swaparooCore = new this.web3.eth.Contract(SwaparooCore.abi, address);
+    // this.swaparooCore = new this.web3.eth.Contract(SwaparooCore as unknown as AbiItem, address) as unknown as SwaparooCoreContract;
+    this.swaparooCore = new this.web3.eth.Contract(SwaparooCore.abi as AbiItem[], address) as unknown as SwaparooCoreContract;
   }
 
   private async loadSwaparooCoreContract() {
@@ -73,7 +77,8 @@ export class ContractService {
   }
 
   private async loadPools() {
-    const addresses : string[] = await this.swaparooCore?.methods.getPools().call();
+    const addresses : string[] | undefined = await this.swaparooCore?.methods.getPools().call();
+    if (addresses === undefined) return;
 
     // TODO: parallize
     const pools : Pool[] = [];
@@ -100,6 +105,7 @@ export class ContractService {
 
     const ether = this.web3.utils.fromWei(await this.web3.eth.getBalance(address), "ether");
     const isOwner = await this.swaparooCore?.methods.isOwner(address).call();
+    if(isOwner == undefined) return;
     const tokenBalances = await this.getTokenBalancesOfUser(address);
     const newUser : User = {
       address,
@@ -125,8 +131,7 @@ export class ContractService {
     const tokenAddresses = this.tokensState$.value.addresses;
     const balances : TokenBalance[] = [];
     for (const tokenAddress of tokenAddresses) {
-      // @ts-ignore
-      const token = new this.web3.eth.Contract(ERC20.abi, tokenAddress);
+      const token = new this.web3.eth.Contract(ERC20.abi as AbiItem[], tokenAddress) as unknown as ERC20Contract;
       const amount = await token.methods.balanceOf(userAddress).call();
       const balance : TokenBalance = {address: tokenAddress, amount};
       balances.push(balance);
@@ -196,6 +201,7 @@ export class ContractService {
         const ether = this.web3.utils.fromWei(await this.web3.eth.getBalance(user.address), "ether");
         const tokenBalances = await this.getTokenBalancesOfUser(user.address);
         const isOwner = await this.swaparooCore?.methods.isOwner(user.address).call();
+        if(isOwner === undefined) return;
         const updatedUser : User = {
           address: user.address,
           ether,
@@ -221,8 +227,8 @@ export class ContractService {
   }
 
   private async getPoolFromAddress(address: string) : Promise<Pool> {
-      // @ts-ignore
-      const swaparooPool =  new this.web3.eth.Contract(SwaparooPool.abi, address);
+      const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi as AbiItem[], address) as unknown as SwaparooPoolContract;
+
       const {'0': reserveA, '1': reserveB} = await swaparooPool?.methods.getReserves().call();
       const {'0': tokenA, '1': tokenB} = await swaparooPool?.methods.getTokenAddresses().call();
       const pool : Pool = {
@@ -238,32 +244,27 @@ export class ContractService {
 
   public async provideLiquidity(amountA: string, amountB: string, addressPool: string, addressTokenA: string, addressTokenB: string, userAddress: string) {
     // approve
-    // @ts-ignore
-    const tokenA = new this.web3.eth.Contract(ERC20.abi, addressTokenA);
+    const tokenA = new this.web3.eth.Contract(ERC20.abi as AbiItem[], addressTokenA) as unknown as ERC20Contract;
     await callContract({
       from: userAddress, 
       method: tokenA?.methods.approve(addressPool, amountA)
     });
 
-    // @ts-ignore
-    const tokenB = new this.web3.eth.Contract(ERC20.abi, addressTokenB);
+    const tokenB = new this.web3.eth.Contract(ERC20.abi as AbiItem[], addressTokenB) as unknown as ERC20Contract;
     await callContract({
       from: userAddress, 
       method: tokenB?.methods.approve(addressPool, amountB)
     });
 
-    // @ts-ignore
-    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, addressPool);
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi as AbiItem[], addressPool) as unknown as SwaparooPoolContract;
     await callContract({
       from: userAddress, 
       method: swaparooPool?.methods.provideLiquidity(amountA, amountB)
     });
   }
 
-  
   public async removeLiquidity(sharesToRemove: string, addressPool: string, userAddress: string) {
-    // @ts-ignore
-    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, addressPool);
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi as AbiItem[], addressPool) as unknown as SwaparooPoolContract;
     await callContract({
       from: userAddress, 
       method: swaparooPool?.methods.removeLiquidity(sharesToRemove)
@@ -271,16 +272,13 @@ export class ContractService {
   }
 
   public async swap(amountIn: string, addressTokenIn: string, addressPool: string, userAddress: string) {
-    // approve
-    // @ts-ignore
-    const tokenIn = new this.web3.eth.Contract(ERC20.abi, addressTokenIn);
+    const tokenIn = new this.web3.eth.Contract(ERC20.abi as AbiItem[], addressTokenIn) as unknown as ERC20Contract;
     await callContract({
       from: userAddress, 
       method: tokenIn?.methods.approve(addressPool, amountIn)
     });
 
-    // @ts-ignore
-    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, addressPool);
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi as AbiItem[], addressPool) as unknown as SwaparooPoolContract;
     await callContract({
       from: userAddress, 
       method: swaparooPool?.methods.swap(amountIn, addressTokenIn)
@@ -288,8 +286,7 @@ export class ContractService {
   }
 
   public async payoutDividends(poolAddress: string, userAddress: string) {
-    // @ts-ignore
-    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi, poolAddress);
+    const swaparooPool = new this.web3.eth.Contract(SwaparooPool.abi as AbiItem[], poolAddress) as unknown as SwaparooPoolContract;
     await callContract({
       from: userAddress, 
       method: swaparooPool?.methods.payoutDividends()

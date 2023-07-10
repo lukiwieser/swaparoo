@@ -7,8 +7,8 @@
     "dev": "truffle develop",
     "test": "truffle test",
     "compile": "truffle compile",
-    "copy": "copyfiles -f build/contracts/abi/*.json ../frontend/src/contracts/abi",
-    "generate-types": "npx typechain --target=truffle-v5 'build/contracts/abi/*.json' --out-dir ./build/contracts/types",
+    "copy": "copyfiles -f build/contracts/abi/*.json ../frontend/src/contracts/abi && copyfiles -f build/contracts/web3-types/*.ts ../frontend/src/contracts/web3-types",
+    "generate-types": "npx typechain --target=web3-v1 'build/contracts/abi/*.json' --out-dir ./build/contracts/web3-types && npx typechain --target=truffle-v5 'build/contracts/abi/*.json' --out-dir ./build/contracts/truffle-types",
     "postinstall": "npm run compile && npm run generate-types && npm run copy"
   },
   "dependencies": {
