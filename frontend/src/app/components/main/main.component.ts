@@ -8,6 +8,7 @@ import {SwaparooPoolService} from 'src/app/services/swaparoo-pool.service';
 import {UserService} from 'src/app/services/user.service';
 import {Web3Service} from 'src/app/services/web3.service';
 import { User } from 'src/app/models/User';
+import { Globals } from '../../globals/globals';
 
 @Component({
   selector: 'app-main',
@@ -32,11 +33,11 @@ export class MainComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    //private contractService: ContractService,
     private web3Service: Web3Service,
     private swaparooCoreService: SwaparooCoreService,
     private swaparooPoolService: SwaparooPoolService,
-    private userService: UserService
+    private userService: UserService,
+    private globals: Globals
   ) {
     this.form = this.formBuilder.group({
       swaparoo_core_address: ['', [Validators.required]],
@@ -56,7 +57,7 @@ export class MainComponent {
   }
 
   async ngOnInit() {
-    await this.web3Service.connect("ws://localhost:9545");
+    await this.web3Service.connect(this.globals.ethereumUri);
 
     this.swaparooCoreService.swaparooCoreState$.subscribe(state => this.swaparooCoreState = state);
     this.swaparooPoolService.swaparooPoolState$.subscribe(state => this.swaparooPoolsState = state);
