@@ -6,6 +6,11 @@
 /out-tsc
 /bazel-out
 
+# Contract abi's and types
+# - they will be copied in this location, when after compiling the contracts
+# - to manually copy the execute `npm run postinstall` in the sibiling directory `smart-contracts`
+/src/contracts
+
 # Node
 /node_modules
 npm-debug.log
