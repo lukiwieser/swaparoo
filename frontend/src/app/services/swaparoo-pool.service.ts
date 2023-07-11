@@ -48,11 +48,8 @@ export class SwaparooPoolService {
   private async loadPools() {
     const addresses : string[] = await this.swaparooCoreService.getPools();
 
-    // TODO: parallize
-    const pools: Pool[] = [];
-    for(let address of addresses) {
-      pools.push(await this.getPoolFromAddress(address));
-    }
+    const poolPromises = addresses.map(address => this.getPoolFromAddress(address));
+    const pools = await Promise.all(poolPromises);
 
     const tokenAddresses = new Set<string>();
     for(let pool of pools) {
