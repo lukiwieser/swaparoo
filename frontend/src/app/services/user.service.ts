@@ -62,9 +62,18 @@ export class UserService {
       tokenBalances
     }
 
-    // update state
+    // update state & set selected-user if neccessary
     const newState = this.usersStateSubject.value;
     newState.users.push(newUser);
+    if(newState.users.length == 1) {
+      newState.selectedUser = newState.users[0];
+    }
+    this.usersStateSubject.next(newState);
+  }
+
+  public selectUser(user: User) {
+    const newState = this.usersStateSubject.value;
+    newState.selectedUser = user;
     this.usersStateSubject.next(newState);
   }
 

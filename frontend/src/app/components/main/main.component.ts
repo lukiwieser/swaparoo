@@ -26,7 +26,6 @@ export class MainComponent {
   swaparooCoreState: SwaparooCoreState | undefined;
   swaparooPoolsState: SwaparooPoolsState | undefined;
   usersState: UsersState | undefined;
-  selectedUser: User | undefined;
   // misc:
   swaparooCoreAddress: string | undefined;
   swaparooCoreInitialized: boolean = false;
@@ -56,20 +55,17 @@ export class MainComponent {
     });
   }
 
+  get selectedUser() {
+    return this.usersState?.selectedUser;
+  }
+
   async ngOnInit() {
     await this.web3Service.connect(this.globals.ethereumUri);
 
     this.swaparooCoreService.swaparooCoreState$.subscribe(state => this.swaparooCoreState = state);
     this.swaparooPoolService.swaparooPoolState$.subscribe(state => this.swaparooPoolsState = state);
-    this.userService.usersState$.subscribe(state => {
-      this.usersState = state;
-      const selectedUserIndex = this.usersState.users.findIndex(u => u.address === this.selectedUser?.address);
-      if(selectedUserIndex >= 0) {
-        this.selectedUser = this.usersState.users[selectedUserIndex];
-      }
-    });
+    this.userService.usersState$.subscribe(state => this.usersState = state);
   }
-
 
   public async submit() {
     const swaparooCoreAddress = this.form.get('swaparoo_core_address')?.value;
@@ -92,38 +88,34 @@ export class MainComponent {
     const address = this.addUserForm.get('user_address')?.value;
     await this.userService.addUser(address);
     this.addUserForm.reset();
-
-    if(this.usersState?.users?.length == 1) {
-      this.selectedUser = this.usersState?.users[0];
-    }
   }
 
   public async addPool() {
-    if(this.addPoolForm.invalid) {
-      return;
-    }
+    if(this.addPoolForm.invalid) return;
+    if(!this.usersState?.selectedUser) return;
+
     const addressTokenA = this.addPoolForm.get('addressTokenA')?.value;
     const addressTokenB = this.addPoolForm.get('addressTokenB')?.value;
 
-    await this.swaparooCoreService.createPool(addressTokenA, addressTokenB, this.selectedUser?.address ?? "");
+    await this.swaparooCoreService.createPool(addressTokenA, addressTokenB, this.usersState.selectedUser.address);
     this.addPoolForm.reset();
   }
 
   public async selectUser(user: User) {
-    this.selectedUser = user;
+    this.userService.selectUser(user);
   }
 
   public async addOwner() {
     if(this.addOwnerForm.invalid) return;
-    if(!this.selectedUser) return;
+    if(!this.usersState?.selectedUser) return;
 
     const newOwnerAddress = this.addOwnerForm.get('newOwnerAddress')?.value;
-    await this.swaparooCoreService.addOwner(newOwnerAddress, this.selectedUser.address);
+    await this.swaparooCoreService.addOwner(newOwnerAddress, this.usersState.selectedUser.address);
     this.addOwnerForm.reset();
   }
 
   public async renounceOwner() {
-    if(!this.selectedUser) return;
-    await this.swaparooCoreService.renounceOwner(this.selectedUser.address);
+    if(!this.usersState?.selectedUser) return;
+    await this.swaparooCoreService.renounceOwner(this.usersState.selectedUser.address);
   }
 }
