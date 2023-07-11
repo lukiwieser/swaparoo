@@ -1,5 +1,6 @@
 export interface SwaparooPoolsState {
     pools: Pool[];
+    tokens: Set<string>; // addresses of all tokens that the pools use/provide
 }
 
 export interface Pool {
@@ -12,5 +13,6 @@ export interface Pool {
 }
 
 export const initialSwaparooPoolsState: SwaparooPoolsState =  {
-    pools: []
+    pools: [],
+    tokens: new Set()
 }

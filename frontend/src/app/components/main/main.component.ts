@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
-import { AbstractControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { SwaparooPoolsState } from 'src/app/models/PoolsState';
-import { SwaparooCoreState } from 'src/app/models/SwaparooCoreState';
-import { User, UsersState } from 'src/app/models/UserState';
-import { ContractService } from 'src/app/services/contract.service';
+import {Component} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {SwaparooPoolsState} from 'src/app/models/PoolsState';
+import {SwaparooCoreState} from 'src/app/models/SwaparooCoreState';
+import {User, UsersState} from 'src/app/models/UserState';
+import {SwaparooCoreService} from 'src/app/services/swaparoo-core.service';
+import {SwaparooPoolService} from 'src/app/services/swaparoo-pool.service';
+import {UserService} from 'src/app/services/user.service';
+import {Web3Service} from 'src/app/services/web3.service';
 
 @Component({
   selector: 'app-main',
@@ -11,21 +14,28 @@ import { ContractService } from 'src/app/services/contract.service';
   styleUrls: ['./main.component.scss']
 })
 export class MainComponent {
+  // forms:
   form: FormGroup;
   addUserForm: FormGroup;
   addPoolForm: FormGroup;
   addOwnerForm: FormGroup;
   renounceOwnerForm: FormGroup;
-  swaparooCoreAddress: string | undefined;
-  swaparooCoreInitialized: boolean = false;
+  // state:
   swaparooCoreState: SwaparooCoreState | undefined;
   swaparooPoolsState: SwaparooPoolsState | undefined;
   usersState: UsersState | undefined;
   selectedUser: User | undefined;
+  // misc:
+  swaparooCoreAddress: string | undefined;
+  swaparooCoreInitialized: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private contractService: ContractService
+    //private contractService: ContractService,
+    private web3Service: Web3Service,
+    private swaparooCoreService: SwaparooCoreService,
+    private swaparooPoolService: SwaparooPoolService,
+    private userService: UserService
   ) {
     this.form = this.formBuilder.group({
       swaparoo_core_address: ['', [Validators.required]],
@@ -45,28 +55,19 @@ export class MainComponent {
   }
 
   async ngOnInit() {
-    await this.connectToClient();
-    this.contractService.swaparooCoreState$.subscribe(state => this.swaparooCoreState = state);
-    this.contractService.swaparooPoolsState$.subscribe(state => this.swaparooPoolsState = state);
-    this.contractService.usersState$.subscribe(state => {
-      this.usersState = state;
+    await this.web3Service.connect("ws://localhost:9545");
 
+    this.swaparooCoreService.swaparooCoreState$.subscribe(state => this.swaparooCoreState = state);
+    this.swaparooPoolService.swaparooPoolState$.subscribe(state => this.swaparooPoolsState = state);
+    this.userService.usersState$.subscribe(state => {
+      this.usersState = state;
       const selectedUserIndex = this.usersState.users.findIndex(u => u.address === this.selectedUser?.address);
       if(selectedUserIndex >= 0) {
         this.selectedUser = this.usersState.users[selectedUserIndex];
       }
-      console.log("updatedState");
     });
   }
 
-  private async connectToClient() {
-    const isConnected = await this.contractService.connectToClient("ws://localhost:9545") 
-    if (isConnected) {
-      console.info("Connected!");
-    } else {
-      window.alert("Failed to connect! Check your port!")
-    }
-  }
 
   public async submit() {
     const swaparooCoreAddress = this.form.get('swaparoo_core_address')?.value;
@@ -78,7 +79,7 @@ export class MainComponent {
 
     if(swaparooCoreAddress) {
       this.swaparooCoreAddress = swaparooCoreAddress;
-      this.swaparooCoreInitialized = await this.contractService.loadSwaparooCore(swaparooCoreAddress);
+      await this.swaparooCoreService.setSwaparooCoreAddress(swaparooCoreAddress);
     }
   }
 
@@ -87,7 +88,7 @@ export class MainComponent {
       return;
     }
     const address = this.addUserForm.get('user_address')?.value;
-    await this.contractService.addUser(address);
+    await this.userService.addUser(address);
     this.addUserForm.reset();
 
     if(this.usersState?.users?.length == 1) {
@@ -102,7 +103,7 @@ export class MainComponent {
     const addressTokenA = this.addPoolForm.get('addressTokenA')?.value;
     const addressTokenB = this.addPoolForm.get('addressTokenB')?.value;
 
-    await this.contractService.createPool(addressTokenA, addressTokenB, this.selectedUser?.address ?? "");
+    await this.swaparooCoreService.createPool(addressTokenA, addressTokenB, this.selectedUser?.address ?? "");
     this.addPoolForm.reset();
   }
 
@@ -115,12 +116,12 @@ export class MainComponent {
     if(!this.selectedUser) return;
 
     const newOwnerAddress = this.addOwnerForm.get('newOwnerAddress')?.value;
-    await this.contractService.addOwner(newOwnerAddress, this.selectedUser.address);
+    await this.swaparooCoreService.addOwner(newOwnerAddress, this.selectedUser.address);
     this.addOwnerForm.reset();
   }
 
   public async renounceOwner() {
     if(!this.selectedUser) return;
-    await this.contractService.renounceOwner(this.selectedUser.address);
+    await this.swaparooCoreService.renounceOwner(this.selectedUser.address);
   }
 }

@@ -1,8 +1,8 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { Pool } from 'src/app/models/PoolsState';
 import { AbstractControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ContractService } from 'src/app/services/contract.service';
 import { User } from 'src/app/models/UserState';
+import { SwaparooPoolService } from 'src/app/services/swaparoo-pool.service';
 
 @Component({
   selector: 'app-pool-item',
@@ -24,7 +24,7 @@ export class PoolItemComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private contractService: ContractService
+    private swaparooPoolService: SwaparooPoolService
   ) {
     this.provideLiqudityForm = this.formBuilder.group({
       amountTokenA: ['', [Validators.required]],
@@ -51,7 +51,7 @@ export class PoolItemComponent {
     const amountA = this.provideLiqudityForm.get('amountTokenA')?.value;
     const amountB = this.provideLiqudityForm.get('amountTokenB')?.value;
 
-    this.contractService.provideLiquidity(
+    this.swaparooPoolService.provideLiquidity(
       amountA, amountB, this.pool.address, this.pool.tokenA, this.pool.tokenB, this.selectedUser.address
     );
   }
@@ -61,7 +61,7 @@ export class PoolItemComponent {
     if(this.removeLiqudityForm.invalid) return;
 
     const sharesToRemove = this.removeLiqudityForm.get('sharesToRemove')?.value;
-    this.contractService.removeLiquidity(sharesToRemove, this.pool.address, this.selectedUser.address);
+    this.swaparooPoolService.removeLiquidity(sharesToRemove, this.pool.address, this.selectedUser.address);
   }
 
   public async swap() {
@@ -72,11 +72,11 @@ export class PoolItemComponent {
     const tokenInAmount = this.swapForm.get('tokenInAmount')?.value;
     const tokenInAddress = (tokenInType == "tokenA") ? this.pool.tokenA : this.pool.tokenB;
 
-    this.contractService.swap(tokenInAmount, tokenInAddress, this.pool.address, this.selectedUser.address);
+    this.swaparooPoolService.swap(tokenInAmount, tokenInAddress, this.pool.address, this.selectedUser.address);
   }
 
   public async payoutDividends() {
     if(!this.selectedUser) return;
-    this.contractService.payoutDividends(this.pool.address, this.selectedUser.address);
+    this.swaparooPoolService.payoutDividends(this.pool.address, this.selectedUser.address);
   }
 }
