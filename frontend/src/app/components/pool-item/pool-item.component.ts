@@ -1,7 +1,7 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { Pool } from 'src/app/models/PoolsState';
-import { AbstractControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { User } from 'src/app/models/UserState';
+import {  FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Pool } from 'src/app/models/Pool';
+import { User } from 'src/app/models/User';
 import { SwaparooPoolService } from 'src/app/services/swaparoo-pool.service';
 
 @Component({

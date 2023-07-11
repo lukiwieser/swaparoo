@@ -1,12 +1,13 @@
 import {Component} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {SwaparooPoolsState} from 'src/app/models/PoolsState';
+import {SwaparooPoolsState} from 'src/app/models/SwaparooPoolsState';
 import {SwaparooCoreState} from 'src/app/models/SwaparooCoreState';
-import {User, UsersState} from 'src/app/models/UserState';
+import {UsersState} from 'src/app/models/UserState';
 import {SwaparooCoreService} from 'src/app/services/swaparoo-core.service';
 import {SwaparooPoolService} from 'src/app/services/swaparoo-pool.service';
 import {UserService} from 'src/app/services/user.service';
 import {Web3Service} from 'src/app/services/web3.service';
+import { User } from 'src/app/models/User';
 
 @Component({
   selector: 'app-main',

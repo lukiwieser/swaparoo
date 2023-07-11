@@ -1,12 +1,14 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {initialUsersState, TokenBalance, User, UsersState} from '../models/UserState';
+import {initialUsersState, UsersState} from '../models/UserState';
 import {SwaparooCoreService} from './swaparoo-core.service';
 import {Web3Service} from './web3.service';
 import ERC20Json from '../../contracts/abi/ERC20.json';
 import {AbiItem} from 'web3-utils';
 import {ERC20} from 'src/contracts/web3-types';
 import {SwaparooPoolService} from './swaparoo-pool.service';
+import { User } from '../models/User';
+import { TokenBalance } from '../models/TokenBalance';
 
 const SwaparooCoreAbi = ERC20Json.abi as AbiItem[];
 

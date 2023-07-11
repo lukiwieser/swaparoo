@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {initialSwaparooPoolsState, Pool, SwaparooPoolsState} from '../models/PoolsState';
+import {initialSwaparooPoolsState, SwaparooPoolsState} from '../models/SwaparooPoolsState';
 import {SwaparooCoreService} from './swaparoo-core.service';
 import {Web3Service} from './web3.service';
 import {ERC20, SwaparooPool} from 'src/contracts/web3-types';
@@ -8,6 +8,7 @@ import SwaparooPoolJson from '../../contracts/abi/SwaparooPool.json';
 import {AbiItem} from 'web3-utils';
 import {callContract} from './utils/utils';
 import ERC20Json from '../../contracts/abi/ERC20.json';
+import { Pool } from '../models/Pool';
 
 const SwaparooPoolAbi = SwaparooPoolJson.abi as AbiItem[];
 const ERC20Abi = ERC20Json.abi as AbiItem[];
