@@ -26,9 +26,6 @@ export class MainComponent {
   swaparooCoreState: SwaparooCoreState | undefined;
   swaparooPoolsState: SwaparooPoolsState | undefined;
   usersState: UsersState | undefined;
-  // misc:
-  swaparooCoreAddress: string | undefined;
-  swaparooCoreInitialized: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -75,10 +72,7 @@ export class MainComponent {
       return;
     }
 
-    if(swaparooCoreAddress) {
-      this.swaparooCoreAddress = swaparooCoreAddress;
-      await this.swaparooCoreService.setSwaparooCoreAddress(swaparooCoreAddress);
-    }
+    await this.swaparooCoreService.setSwaparooCoreAddress(swaparooCoreAddress);
   }
 
   public async addUser() {
