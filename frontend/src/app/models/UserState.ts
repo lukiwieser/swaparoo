@@ -2,10 +2,10 @@ import { User } from "./User";
 
 export interface UsersState {
     users: User[];
-    selectedUser: User | undefined;
+    selectedUserAddress: string | undefined;
 }
 
 export const initialUsersState: UsersState = {
     users: [],
-    selectedUser: undefined
+    selectedUserAddress: undefined
 };

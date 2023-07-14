@@ -35,6 +35,7 @@ export class UserService {
       }
     });
     this.swaparooPoolService.swaparooPoolState$.subscribe(async (state) => {
+      console.log("update user state cause pools changed")
       await this.updateUserState();
     });
   }
@@ -66,14 +67,14 @@ export class UserService {
     const newState = this.usersStateSubject.value;
     newState.users.push(newUser);
     if(newState.users.length == 1) {
-      newState.selectedUser = newState.users[0];
+      newState.selectedUserAddress = newState.users[0].address;
     }
     this.usersStateSubject.next(newState);
   }
 
   public selectUser(user: User) {
     const newState = this.usersStateSubject.value;
-    newState.selectedUser = user;
+    newState.selectedUserAddress = user.address;
     this.usersStateSubject.next(newState);
   }
 

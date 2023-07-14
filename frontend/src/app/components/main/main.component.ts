@@ -52,8 +52,8 @@ export class MainComponent implements OnInit {
     });
   }
 
-  get selectedUser() {
-    return this.usersState?.selectedUser;
+  get selectedUser(): User | undefined {
+    return this.usersState?.users.find(u => u.address === this.usersState?.selectedUserAddress)
   }
 
   async ngOnInit() {
@@ -86,12 +86,12 @@ export class MainComponent implements OnInit {
 
   public async addPool() {
     if(this.addPoolForm.invalid) return;
-    if(!this.usersState?.selectedUser) return;
+    if(!this.usersState?.selectedUserAddress) return;
 
     const addressTokenA = this.addPoolForm.get('addressTokenA')?.value;
     const addressTokenB = this.addPoolForm.get('addressTokenB')?.value;
 
-    await this.swaparooCoreService.createPool(addressTokenA, addressTokenB, this.usersState.selectedUser.address);
+    await this.swaparooCoreService.createPool(addressTokenA, addressTokenB, this.usersState.selectedUserAddress);
     this.addPoolForm.reset();
   }
 
@@ -101,15 +101,15 @@ export class MainComponent implements OnInit {
 
   public async addOwner() {
     if(this.addOwnerForm.invalid) return;
-    if(!this.usersState?.selectedUser) return;
+    if(!this.usersState?.selectedUserAddress) return;
 
     const newOwnerAddress = this.addOwnerForm.get('newOwnerAddress')?.value;
-    await this.swaparooCoreService.addOwner(newOwnerAddress, this.usersState.selectedUser.address);
+    await this.swaparooCoreService.addOwner(newOwnerAddress, this.usersState.selectedUserAddress);
     this.addOwnerForm.reset();
   }
 
   public async renounceOwner() {
-    if(!this.usersState?.selectedUser) return;
-    await this.swaparooCoreService.renounceOwner(this.usersState.selectedUser.address);
+    if(!this.usersState?.selectedUserAddress) return;
+    await this.swaparooCoreService.renounceOwner(this.usersState.selectedUserAddress);
   }
 }
