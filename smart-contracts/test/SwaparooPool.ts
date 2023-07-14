@@ -64,13 +64,13 @@ contract("SwaparooPool", async accounts => {
         
         it("provide further liqudity with correct ratio works", async () => {
             // initial liqudity (ratio 2 : 10)
-            await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1)
+            await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1);
 
             // further liqudity (ratio 1 : 5 aka 2 : 10)
             await _provideLiquidity(web3.utils.toBN('10000000000000000'), goldToken, web3.utils.toBN('50000000000000000'), silverToken, pool, liquidityProvider1);
             
             // check shares
-            const sharesBefore = web3.utils.toBN("447213595499957939")
+            const sharesBefore = web3.utils.toBN("447213595499957939");
             const expectedNewShares = web3.utils.toBN("22360679774997896");  
             const expectedShares = expectedNewShares.add(sharesBefore);
             const shares = await pool.balanceOf(liquidityProvider1);
@@ -79,7 +79,7 @@ contract("SwaparooPool", async accounts => {
 
         it("provide further liqudity with incorrect ratio reverts", async () => {
             // initial liqudity (ratio 2 : 10)
-            await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1)
+            await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1);
         
             // further liqudity (ratio 3 : 10)
             await expectRevert(
@@ -180,7 +180,7 @@ contract("SwaparooPool", async accounts => {
             const amountTokenIn = web3.utils.toBN('300000000000000000');
             const addressTokenIn = silverToken.address;
             await silverToken.approve(pool.address, amountTokenIn, {from: swapper1});
-            await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1})
+            await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1});
             
             // Calculate Expected Token Out
             const feePercentage = web3.utils.toBN('30');
@@ -224,7 +224,7 @@ contract("SwaparooPool", async accounts => {
             const amountTokenIn = web3.utils.toBN('20000000000000000');
             const addressTokenIn = goldToken.address;
             await goldToken.approve(pool.address, amountTokenIn, {from: swapper1});
-            await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1})
+            await pool.swap(amountTokenIn, addressTokenIn, {from: swapper1});
             
             // Calculate Expected Token Out
             const feePercentage = web3.utils.toBN('30');

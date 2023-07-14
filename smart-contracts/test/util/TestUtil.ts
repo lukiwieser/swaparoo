@@ -7,7 +7,7 @@ export async function _swap(
     account: string
 ) {
     await contractTokenIn.approve(pool.address, amountTokenIn, {from: account});
-    await pool.swap(amountTokenIn, contractTokenIn.address, {from: account})
+    await pool.swap(amountTokenIn, contractTokenIn.address, {from: account});
 }
 
 export async function _provideLiquidity(
