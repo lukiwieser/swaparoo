@@ -113,7 +113,7 @@ export class UserService {
   }
 
   private listenToBlockUpdates() {
-    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error: any, result: any) => {
+    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error, result) => {
       if (error) {
         console.log(error);
         return;

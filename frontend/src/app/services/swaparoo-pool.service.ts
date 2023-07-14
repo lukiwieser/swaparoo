@@ -101,7 +101,7 @@ export class SwaparooPoolService {
   }
 
   private listenToContractEvents() {
-    this.swaparooCoreService.PoolAddedEvent(async (error: any, result: any) => {
+    this.swaparooCoreService.PoolAddedEvent(async (error, result) => {
       console.info('got Event: PoolAdded', result);
       if(error) {
         console.log(error);
@@ -115,7 +115,7 @@ export class SwaparooPoolService {
   }
 
   private listenToBlockUpdates() {
-    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error: any, result: any) => {
+    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error, result) => {
       if (error) {
         console.log(error);
         return;
