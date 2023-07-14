@@ -35,7 +35,7 @@ export class UserService {
       }
     });
     this.swaparooPoolService.swaparooPoolState$.subscribe(async () => {
-      console.log("update user state cause pools changed")
+      console.log("update user state cause pools changed");
       await this.updateUserState();
     });
   }
@@ -48,7 +48,7 @@ export class UserService {
     // check if user is already added
     const userAddresses = this.usersStateSubject.value.users.map(user => user.address);
     if (userAddresses.includes(address)) {
-      console.warn("Address already invited.")
+      console.warn("Address already invited.");
       return;
     }
 
@@ -61,7 +61,7 @@ export class UserService {
       isOwner,
       ether,
       tokenBalances
-    }
+    };
 
     // update state & set selected-user if neccessary
     const newState = this.usersStateSubject.value;
@@ -105,7 +105,7 @@ export class UserService {
         ether,
         isOwner,
         tokenBalances
-      }
+      };
 
       const index = usersState.users.findIndex(u => u.address === user.address);
       usersState.users[index] = updatedUser;

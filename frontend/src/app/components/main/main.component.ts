@@ -53,7 +53,7 @@ export class MainComponent implements OnInit {
   }
 
   get selectedUser(): User | undefined {
-    return this.usersState?.users.find(u => u.address === this.usersState?.selectedUserAddress)
+    return this.usersState?.users.find(u => u.address === this.usersState?.selectedUserAddress);
   }
 
   async ngOnInit() {

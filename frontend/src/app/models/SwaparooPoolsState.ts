@@ -8,4 +8,4 @@ export interface SwaparooPoolsState {
 export const initialSwaparooPoolsState: SwaparooPoolsState =  {
     pools: [],
     tokens: new Set()
-}
+};

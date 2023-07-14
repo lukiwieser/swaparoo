@@ -6,4 +6,4 @@ export interface SwaparooCoreState {
 export const initalSwaparooCoreState: SwaparooCoreState = {
     address: "",
     ether: "",
-  };
+};

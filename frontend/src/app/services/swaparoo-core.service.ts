@@ -44,7 +44,7 @@ export class SwaparooCoreService {
 
   public async getPools() : Promise<string[]> {
     if(!this.swaparooCore) return [];
-    return await this.swaparooCore.methods.getPools().call()
+    return await this.swaparooCore.methods.getPools().call();
   }
 
   public PoolAddedEvent(cb?: Callback<PoolAdded>) {
@@ -92,7 +92,7 @@ export class SwaparooCoreService {
     // Check whether bar contract is deployed by checking whether there is code deployed on that address
     const data = await this.web3service.web3.eth.getCode(address);
     if (data === "0x") {
-      console.log("No contract deployed on that address!")
+      console.log("No contract deployed on that address!");
       return false;
     }
     return true;

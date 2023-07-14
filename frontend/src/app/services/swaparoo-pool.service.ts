@@ -58,7 +58,7 @@ export class SwaparooPoolService {
       tokenAddresses.add(pool.tokenB);
     }
 
-    const poolState: SwaparooPoolsState = { pools, tokens: tokenAddresses }
+    const poolState: SwaparooPoolsState = { pools, tokens: tokenAddresses };
     this.swaparooPoolStateSubject.next(poolState);
   }
 

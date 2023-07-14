@@ -1,6 +1,6 @@
 import { NonPayableTransactionObject, NonPayableTx } from "src/contracts/web3-types/types";
 import type BN from "bn.js";
-import type { TransactionReceipt } from "web3-core/types"
+import type { TransactionReceipt } from "web3-core/types";
   
 export interface CallOptions<T> {
     from: string,

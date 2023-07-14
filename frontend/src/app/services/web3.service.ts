@@ -26,7 +26,7 @@ export class Web3Service {
         console.log("connected!");
       }
     } catch (e) {
-      console.error("Connection failed with error: ", e)
+      console.error("Connection failed with error: ", e);
       this._isConnected = false;
     }
   }
