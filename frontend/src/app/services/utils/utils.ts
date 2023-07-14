@@ -1,15 +1,6 @@
 import { NonPayableTransactionObject, NonPayableTx } from "src/contracts/web3-types/types";
-import Web3 from "web3";
 import type BN from "bn.js";
-import type { TransactionReceipt } from "web3-core/types";
-
-declare global {
-    interface Window {
-        web3: Web3;
-    }
-}
-window.web3 = window.web3 || {};
-  
+import type { TransactionReceipt } from "web3-core/types"
   
 export interface CallOptions<T> {
     from: string,
