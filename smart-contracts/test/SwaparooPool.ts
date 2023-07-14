@@ -1,4 +1,5 @@
-import { ERC20Instance, GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../build/contracts/truffle-types";
+import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../build/contracts/truffle-types";
+import { _provideLiquidity, _swap } from "./util/TestUtil";
 
 // NOTE: @openzeppelin/test-helpers seems to not yet have typings: https://github.com/OpenZeppelin/openzeppelin-test-helpers/issues/122
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -62,12 +63,6 @@ contract("SwaparooPool", async accounts => {
         });
         
         it("provide further liqudity with correct ratio works", async () => {
-            async function _provideLiquidity(_amountTokenA: BN, _contractTokenA: ERC20Instance, _amountTokenB: BN, _contractTokenB: ERC20Instance, _pool: SwaparooPoolInstance, _account: string) {
-                await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
-                await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
-                await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
-            }
-        
             // initial liqudity (ratio 2 : 10)
             await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1)
 
@@ -83,12 +78,6 @@ contract("SwaparooPool", async accounts => {
         });
 
         it("provide further liqudity with incorrect ratio reverts", async () => {
-            async function _provideLiquidity(_amountTokenA: BN, _contractTokenA: ERC20Instance, _amountTokenB: BN, _contractTokenB: ERC20Instance, _pool: SwaparooPoolInstance, _account: string) {
-                await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
-                await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
-                await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
-            }
-        
             // initial liqudity (ratio 2 : 10)
             await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1)
         
@@ -134,12 +123,6 @@ contract("SwaparooPool", async accounts => {
         });
 
         it("remove all liquidity & provide again works", async () => {
-            async function _provideLiquidity(_amountTokenA: BN, _contractTokenA: ERC20Instance, _amountTokenB: BN, _contractTokenB: ERC20Instance, _pool: SwaparooPoolInstance, _account: string) {
-                await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
-                await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
-                await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
-            }
-            
             // initial liquidity (ratio 2 : 10)
             await _provideLiquidity(web3.utils.toBN('200000000000000000'), goldToken, web3.utils.toBN('1000000000000000000'), silverToken, pool, liquidityProvider1);
             
@@ -266,12 +249,7 @@ contract("SwaparooPool", async accounts => {
             assert(poolSilverReserveAfter.eq(poolSilverReserveExpected), "Silver reserve of pool is wrong");
         });
         
-        it("swap does not change k", async () => {
-            async function _swap(_amountTokenIn: BN, _contractTokenIn: ERC20Instance, _account: string) {
-                await _contractTokenIn.approve(pool.address, _amountTokenIn, {from: _account});
-                await pool.swap(_amountTokenIn, _contractTokenIn.address, {from: _account})
-            }
-        
+        it("swap does not change k", async () => {        
             // Add liquidity
             const amountGold   = web3.utils.toBN('200000000000000000');
             const amountSilver = web3.utils.toBN('1000000000000000000');
@@ -283,11 +261,11 @@ contract("SwaparooPool", async accounts => {
             const kBefore = await pool.getK();
         
             // Swap a few times
-            await _swap(web3.utils.toBN('300000000000000000'), silverToken, swapper1);                              
-            await _swap(web3.utils.toBN('100000000000000000'), silverToken, swapper1);                              
-            await _swap(web3.utils.toBN( '20000000000000000'), goldToken, swapper1);                              
-            await _swap(web3.utils.toBN('100000000000000000'), silverToken, swapper1);                              
-            await _swap(web3.utils.toBN( '10000000000000000'), goldToken, swapper1);                              
+            await _swap(web3.utils.toBN('300000000000000000'), silverToken, pool, swapper1);                              
+            await _swap(web3.utils.toBN('100000000000000000'), silverToken, pool, swapper1);                              
+            await _swap(web3.utils.toBN( '20000000000000000'), goldToken, pool, swapper1);                              
+            await _swap(web3.utils.toBN('100000000000000000'), silverToken, pool, swapper1);                              
+            await _swap(web3.utils.toBN( '10000000000000000'), goldToken, pool, swapper1);                              
         
             // k After
             const kAfter = await pool.getK();
