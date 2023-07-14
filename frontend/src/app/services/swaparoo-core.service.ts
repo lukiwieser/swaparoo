@@ -17,7 +17,7 @@ const SwaparooCoreAbi = SwaparooCoreJson.abi as AbiItem[];
 })
 export class SwaparooCoreService {
 
-  private swaparooCore: SwaparooCore | undefined;
+  private swaparooCore?: SwaparooCore;
   private readonly swaparooCoreStateSubject: BehaviorSubject<SwaparooCoreState>;
   public readonly swaparooCoreState$: Observable<SwaparooCoreState>;
 
@@ -26,12 +26,16 @@ export class SwaparooCoreService {
     this.swaparooCoreState$ = this.swaparooCoreStateSubject.asObservable();
   }
 
-  public async setSwaparooCoreAddress(swaparooCoreAddress: string) {
-    if(!await this.isContractDeployed(swaparooCoreAddress)) {
+  public async setSwaparooCoreAddress(address: string) {
+    if(!await this.isContractDeployed(address)) {
       return;
     }
-    this.swaparooCore = new this.web3service.web3.eth.Contract(SwaparooCoreAbi, swaparooCoreAddress) as unknown as SwaparooCore;
-    await this.updateState();
+
+    this.swaparooCore = new this.web3service.web3.eth.Contract(SwaparooCoreAbi, address) as unknown as SwaparooCore;
+
+    const ether = this.web3service.web3.utils.fromWei(await this.web3service.web3.eth.getBalance(address), "ether");
+    const swaparooCoreState: SwaparooCoreState = { address, ether };
+    this.swaparooCoreStateSubject.next(swaparooCoreState);
   }
 
   public async createPool(addressTokenA: string, addressTokenB: string, userAddress: string) {
@@ -80,13 +84,7 @@ export class SwaparooCoreService {
     this.swaparooCore?.events.OwnerRemoved(cb);
   }
 
-  private async updateState() {
-    if(!this.swaparooCore) return;
-    const address = this.swaparooCore.options.address;
-    const ether = this.web3service.web3.utils.fromWei(await this.web3service.web3.eth.getBalance(address), "ether");
-    const state: SwaparooCoreState = { address, ether };
-    this.swaparooCoreStateSubject.next(state);
-  }
+
 
   private async isContractDeployed(address: string): Promise<boolean> {
     // Check whether bar contract is deployed by checking whether there is code deployed on that address
