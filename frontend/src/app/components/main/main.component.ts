@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SwaparooPoolsState} from 'src/app/models/SwaparooPoolsState';
 import {SwaparooCoreState} from 'src/app/models/SwaparooCoreState';
@@ -15,7 +15,7 @@ import { Globals } from '../../globals/globals';
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
-export class MainComponent {
+export class MainComponent implements OnInit {
   // forms:
   form: FormGroup;
   addUserForm: FormGroup;

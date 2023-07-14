@@ -6,10 +6,8 @@ import Web3 from 'web3';
 })
 export class Web3Service {
 
-  constructor() { }
-
   private _web3!: Web3;
-  private _isConnected: boolean = false;
+  private _isConnected = false;
 
   public get isConnected() : boolean {
     return this._isConnected;

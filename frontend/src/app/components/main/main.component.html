@@ -32,9 +32,9 @@
     <div *ngFor="let user of usersState?.users">
         <br>
         <div>
-            <span *ngIf="user.address==selectedUser?.address">☑</span>
-            <span *ngIf="user.address!=selectedUser?.address">☐</span>
-            <button (click)="selectUser(user)" [disabled]="user.address==selectedUser?.address">select</button>
+            <span *ngIf="user.address===selectedUser?.address">☑</span>
+            <span *ngIf="user.address!==selectedUser?.address">☐</span>
+            <button (click)="selectUser(user)" [disabled]="user.address===selectedUser?.address">select</button>
             {{user.address}}
             <span *ngIf="user.isOwner===true">(Owner)</span>
         </div>

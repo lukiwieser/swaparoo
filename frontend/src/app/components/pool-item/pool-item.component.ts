@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import {  FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Pool } from 'src/app/models/Pool';
 import { User } from 'src/app/models/User';
@@ -9,7 +9,7 @@ import { SwaparooPoolService } from 'src/app/services/swaparoo-pool.service';
   templateUrl: './pool-item.component.html',
   styleUrls: ['./pool-item.component.scss']
 })
-export class PoolItemComponent {
+export class PoolItemComponent implements OnChanges {
   @Input() pool!: Pool;
   @Input() selectedUser: User | undefined;
   provideLiqudityForm: FormGroup;

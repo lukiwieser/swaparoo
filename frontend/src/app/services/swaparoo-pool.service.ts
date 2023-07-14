@@ -52,7 +52,7 @@ export class SwaparooPoolService {
     const pools = await Promise.all(poolPromises);
 
     const tokenAddresses = new Set<string>();
-    for(let pool of pools) {
+    for(const pool of pools) {
       tokenAddresses.add(pool.address);
       tokenAddresses.add(pool.tokenA);
       tokenAddresses.add(pool.tokenB);
@@ -75,8 +75,8 @@ export class SwaparooPoolService {
 
   private async getPoolFromAddress(address: string) : Promise<Pool> {
     const swaparooPool = new this.web3Service.web3.eth.Contract(SwaparooPoolAbi, address) as unknown as SwaparooPool;
-    const {'0': reserveA, '1': reserveB} = await swaparooPool?.methods.getReserves().call();
-    const {'0': tokenA, '1': tokenB} = await swaparooPool?.methods.getTokenAddresses().call();
+    const {'0': reserveA, '1': reserveB} = await swaparooPool.methods.getReserves().call();
+    const {'0': tokenA, '1': tokenB} = await swaparooPool.methods.getTokenAddresses().call();
     return {
       address: address,
       tokenA: tokenA,
