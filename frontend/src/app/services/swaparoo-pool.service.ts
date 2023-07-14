@@ -129,19 +129,19 @@ export class SwaparooPoolService {
     const tokenA = new this.web3Service.web3.eth.Contract(ERC20Abi, addressTokenA) as unknown as ERC20;
     await callContract({
       from: fromAddress,
-      method: tokenA?.methods.approve(addressPool, amountA)
+      method: tokenA.methods.approve(addressPool, amountA)
     });
 
     const tokenB = new this.web3Service.web3.eth.Contract(ERC20Abi, addressTokenB) as unknown as ERC20;
     await callContract({
       from: fromAddress,
-      method: tokenB?.methods.approve(addressPool, amountB)
+      method: tokenB.methods.approve(addressPool, amountB)
     });
 
     const swaparooPool = new this.web3Service.web3.eth.Contract(SwaparooPoolAbi, addressPool) as unknown as SwaparooPool;
     await callContract({
       from: fromAddress,
-      method: swaparooPool?.methods.provideLiquidity(amountA, amountB)
+      method: swaparooPool.methods.provideLiquidity(amountA, amountB)
     });
   }
 
@@ -149,7 +149,7 @@ export class SwaparooPoolService {
     const swaparooPool = new this.web3Service.web3.eth.Contract(SwaparooPoolAbi, addressPool) as unknown as SwaparooPool;
     await callContract({
       from: fromAddress,
-      method: swaparooPool?.methods.removeLiquidity(sharesToRemove)
+      method: swaparooPool.methods.removeLiquidity(sharesToRemove)
     });
   }
 
@@ -157,13 +157,13 @@ export class SwaparooPoolService {
     const tokenIn = new this.web3Service.web3.eth.Contract(ERC20Abi, addressTokenIn) as unknown as ERC20;
     await callContract({
       from: fromAddress,
-      method: tokenIn?.methods.approve(addressPool, amountIn)
+      method: tokenIn.methods.approve(addressPool, amountIn)
     });
 
     const swaparooPool = new this.web3Service.web3.eth.Contract(SwaparooPoolAbi, addressPool) as unknown as SwaparooPool;
     await callContract({
       from: fromAddress,
-      method: swaparooPool?.methods.swap(amountIn, addressTokenIn)
+      method: swaparooPool.methods.swap(amountIn, addressTokenIn)
     });
   }
 
@@ -171,7 +171,7 @@ export class SwaparooPoolService {
     const swaparooPool = new this.web3Service.web3.eth.Contract(SwaparooPoolAbi, poolAddress) as unknown as SwaparooPool;
     await callContract({
       from: fromAddress,
-      method: swaparooPool?.methods.payoutDividends()
+      method: swaparooPool.methods.payoutDividends()
     });
   }
 }

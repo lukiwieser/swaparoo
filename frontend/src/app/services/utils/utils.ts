@@ -1,4 +1,7 @@
+import { NonPayableTransactionObject, NonPayableTx } from "src/contracts/web3-types/types";
 import Web3 from "web3";
+import type BN from "bn.js";
+import type { TransactionReceipt } from "web3-core/types";
 
 declare global {
     interface Window {
@@ -8,41 +11,26 @@ declare global {
 window.web3 = window.web3 || {};
   
   
-export interface CallOptions {
+export interface CallOptions<T> {
     from: string,
-    method: any,
-    value?: any,
+    method: NonPayableTransactionObject<T>,
+    value?: string | number | BN,
 }
 
-export function callContract({from, method, value = 0}: CallOptions): Promise<any> {
-    return new Promise((resolve, reject) => {
-      try {
-        method.estimateGas({from: from, value: value}, (error: any, result: any) => {
-            if (error) {
-                console.log(errorMessage(error));
-                reject(error);
-            } else {
-                method.send({from: from, value: value, gas: result}).then((result: any) => {
-                        console.log(transactionSuccess(result));
+export function callContract<T>({from, method, value = 0}: CallOptions<T>): Promise<TransactionReceipt> {
+    return new Promise((resolve, reject) => {        
+        method.estimateGas({from: from, value: value} as NonPayableTx)
+            .then(result => {
+                method.send({from: from, value: value, gas: result} as NonPayableTx)
+                    .then(result => {
                         resolve(result);
-                    }
-                );
-            }
-        }).catch((e: any) => {
-            console.log(errorMessage(e));
-            reject(e);
-        });
-      } catch (e: any) {
-            console.log(errorMessage(e));
-            reject(e);
-      }
+                    })
+                    .catch(error => {
+                        reject(error);
+                    });
+            })
+            .catch(error => {
+                reject(error);
+            });
     });
-}
-
-export function errorMessage(message: string) {
-    return {severity: 'error', summary: 'Error', detail: message};
-}
-
-export function transactionSuccess(receipt: any) {
-    return {severity: 'success', summary: 'Transaction sent', detail: receipt.transactionHash};
 }
