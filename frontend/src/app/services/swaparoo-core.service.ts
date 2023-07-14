@@ -84,15 +84,13 @@ export class SwaparooCoreService {
     this.swaparooCore?.events.OwnerRemoved(cb);
   }
 
-
-
+  /**
+   * Checks if the contract is deployed, by checking whether there is code deployed on that address
+   * @param address of the contract
+   */
   private async isContractDeployed(address: string): Promise<boolean> {
-    // Check whether bar contract is deployed by checking whether there is code deployed on that address
+    // Check whether bar contract is deployed by checking
     const data = await this.web3service.web3.eth.getCode(address);
-    if (data === "0x") {
-      console.log("No contract deployed on that address!");
-      return false;
-    }
-    return true;
+    return data !== "0x";
   }
 }
