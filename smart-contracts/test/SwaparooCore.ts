@@ -1,5 +1,7 @@
 import { BRZTokenInstance, GLDTokenInstance, SILTokenInstance, SwaparooCoreInstance } from "../build/contracts/truffle-types";
 
+// NOTE: @openzeppelin/test-helpers seems to not yet have typings: https://github.com/OpenZeppelin/openzeppelin-test-helpers/issues/122
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const GLDToken = artifacts.require("GLDToken");

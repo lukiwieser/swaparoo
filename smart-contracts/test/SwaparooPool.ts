@@ -1,5 +1,7 @@
-import { GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../build/contracts/truffle-types";
+import { ERC20Instance, GLDTokenInstance, SILTokenInstance, SwaparooPoolInstance } from "../build/contracts/truffle-types";
 
+// NOTE: @openzeppelin/test-helpers seems to not yet have typings: https://github.com/OpenZeppelin/openzeppelin-test-helpers/issues/122
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const GLDToken = artifacts.require("GLDToken");
@@ -13,7 +15,7 @@ contract("SwaparooPool", async accounts => {
     let pool: SwaparooPoolInstance;
     
     // accounts:
-    const owner = accounts[0];
+    // NOTE: by default all contracts are called by accounts[0]. accounts[0] is also the one who deployed the contracts, thus their owner.
     const liquidityProvider1 = accounts[1];
     const liquidityProvider2 = accounts[2];
     const swapper1 = accounts[3];
@@ -60,7 +62,7 @@ contract("SwaparooPool", async accounts => {
         });
         
         it("provide further liqudity with correct ratio works", async () => {
-            async function _provideLiquidity(_amountTokenA: any, _contractTokenA: any, _amountTokenB: any, _contractTokenB: any, _pool: any, _account: any) {
+            async function _provideLiquidity(_amountTokenA: BN, _contractTokenA: ERC20Instance, _amountTokenB: BN, _contractTokenB: ERC20Instance, _pool: SwaparooPoolInstance, _account: string) {
                 await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
                 await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
                 await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
@@ -81,7 +83,7 @@ contract("SwaparooPool", async accounts => {
         });
 
         it("provide further liqudity with incorrect ratio reverts", async () => {
-            async function _provideLiquidity(_amountTokenA: any, _contractTokenA: any, _amountTokenB: any, _contractTokenB: any, _pool: any, _account: any) {
+            async function _provideLiquidity(_amountTokenA: BN, _contractTokenA: ERC20Instance, _amountTokenB: BN, _contractTokenB: ERC20Instance, _pool: SwaparooPoolInstance, _account: string) {
                 await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
                 await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
                 await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
@@ -132,7 +134,7 @@ contract("SwaparooPool", async accounts => {
         });
 
         it("remove all liquidity & provide again works", async () => {
-            async function _provideLiquidity(_amountTokenA: any, _contractTokenA: any, _amountTokenB: any, _contractTokenB: any, _pool: any, _account: any) {
+            async function _provideLiquidity(_amountTokenA: BN, _contractTokenA: ERC20Instance, _amountTokenB: BN, _contractTokenB: ERC20Instance, _pool: SwaparooPoolInstance, _account: string) {
                 await _contractTokenA.approve(_pool.address, _amountTokenA, {from: _account});
                 await _contractTokenB.approve(_pool.address, _amountTokenB, {from: _account});
                 await _pool.provideLiquidity(_amountTokenA, _amountTokenB, {from: _account});
@@ -265,7 +267,7 @@ contract("SwaparooPool", async accounts => {
         });
         
         it("swap does not change k", async () => {
-            async function _swap(_amountTokenIn: any, _contractTokenIn: any, _account: any) {
+            async function _swap(_amountTokenIn: BN, _contractTokenIn: ERC20Instance, _account: string) {
                 await _contractTokenIn.approve(pool.address, _amountTokenIn, {from: _account});
                 await pool.swap(_amountTokenIn, _contractTokenIn.address, {from: _account})
             }

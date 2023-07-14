@@ -11,7 +11,7 @@ contract("DualDividendToken", async accounts => {
     let dividendToken: SimpleDualDividendTokenInstance;
 
     // accounts:
-    const owner = accounts[0];
+    // NOTE: by default all contracts are called by accounts[0]. accounts[0] is also the one who deployed the contracts, thus their owner.
     const alice = accounts[1];
     const billy = accounts[2];
 
