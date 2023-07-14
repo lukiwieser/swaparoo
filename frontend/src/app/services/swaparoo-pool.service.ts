@@ -115,7 +115,7 @@ export class SwaparooPoolService {
   }
 
   private listenToBlockUpdates() {
-    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error, result) => {
+    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error) => {
       if (error) {
         console.log(error);
         return;

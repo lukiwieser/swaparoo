@@ -34,7 +34,7 @@ export class UserService {
         await this.init();
       }
     });
-    this.swaparooPoolService.swaparooPoolState$.subscribe(async (state) => {
+    this.swaparooPoolService.swaparooPoolState$.subscribe(async () => {
       console.log("update user state cause pools changed")
       await this.updateUserState();
     });
@@ -114,7 +114,7 @@ export class UserService {
   }
 
   private listenToBlockUpdates() {
-    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error, result) => {
+    this.web3Service.web3.eth.subscribe('newBlockHeaders', async (error) => {
       if (error) {
         console.log(error);
         return;
