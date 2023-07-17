@@ -38,12 +38,12 @@ contract DualDividendToken is ERC20 {
         uint lastDividendsB;
     }
 
-    uint constant MULTIPLIER = 10e18;
-    IERC20 immutable tokenA;
-    IERC20 immutable tokenB;
-    uint totalDividendsA; // as percentages
-    uint totalDividendsB; // as percentages
-    mapping(address => Account) accounts;
+    uint constant public MULTIPLIER = 10e18;
+    IERC20 immutable internal tokenA;
+    IERC20 immutable internal tokenB;
+    uint internal totalDividendsA; // as percentages
+    uint internal totalDividendsB; // as percentages
+    mapping(address => Account) internal accounts;
 
     constructor(address _tokenA, address _tokenB, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
         tokenA = IERC20(_tokenA);
