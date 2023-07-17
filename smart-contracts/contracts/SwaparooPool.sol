@@ -7,7 +7,11 @@ import "@openzeppelin/contracts/utils/Address.sol";
 
 import "./DualDividendToken.sol";
 
-// TODO: keep frontrunning/dynamic nature in mind (min values etc.)
+/// @title Liquidity Pool of Swaparoo
+/// @notice Represents a LiquidityPool for a given token-pair.
+/// Users can swap tokens, and/or provide tokens as reserve and earn dividends as reward.
+/// It uses the concept of a "Constant Product Market Maker" as basis for determining the amounts of tokens.
+/// TODO: keep frontrunning/dynamic nature in mind (min values etc.)
 contract SwaparooPool is DualDividendToken {
     uint public constant FEE = 30; // 30 = 0.3% = 0.003
     uint public constant FEE_MULITPLIER = 10000;
@@ -37,18 +41,26 @@ contract SwaparooPool is DualDividendToken {
         // tokenA & tokenB are already assigned in DualDividendToken
     }
 
+    /// @notice Returns the amount of tokenA and tokenB stored in the pool as reserve
     function getReserves() external view returns (uint, uint) {
         return (reserveA, reserveB);
     }
 
+    /// @notice Returns the addresses of tokenA and tokenB
     function getTokenAddresses() external view returns (address, address) {
         return (address(tokenA), address(tokenB));
     }
 
+    /// @notice Returns the current value of k (reserveA * reserveB).
     function getK() external view returns (uint) {
         return k;
     }
 
+    /// @notice Provide liquidity to the pool, by providing some tokenA and tokenB in correct ratio.
+    /// The ratio of the amount of tokens provided must equal of the ratio of the tokens already in the pool.
+    /// In return the caller will receive liquidity tokens from this contract.
+    /// @param amountA The amount of tokenA to be provided.
+    /// @param amountB The amount of tokenB to be provided.
     function provideLiquidity(uint amountA, uint amountB) external {
         require(amountA > 0 && amountB > 0, "Number of tokens must be greater than 0");
 
@@ -75,6 +87,10 @@ contract SwaparooPool is DualDividendToken {
         emit LiquidityProvided(msg.sender, amountA, amountB, shares);
     }
 
+    /// @notice Remove liquidity from the pool.
+    /// This burns the callers liquidity tokens
+    /// The caller receives some amount of tokenA and tokenB, this can differ from the amount they provided initially.
+    /// @param shares The number of liquidity tokens to be removed.
     function removeLiquidity(uint shares) external {
         require(totalSupply() > 0, "No liquidity");
 
@@ -94,6 +110,9 @@ contract SwaparooPool is DualDividendToken {
         emit LiquidityRemoved(msg.sender, shares, decreaseTokenA, decreaseTokenB);
     }
 
+    /// @notice Swap tokenA for tokenB, or tokenB for tokenA
+    /// @param amountIn The amount of input tokens to be swapped
+    /// @param _tokenIn The address of the input token
     function swap(uint amountIn, address _tokenIn) external {
         require(_tokenIn == address(tokenA) || _tokenIn == address(tokenB), "Token not supported");
 
