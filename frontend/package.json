@@ -1,6 +1,6 @@
 {
   "name": "swaparoo-frontend",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Frontend for Swaparoo, a decentralized ERC20 Token Exchange, using the concept of a Constant Product Market Maker.",
   "author": "Lukas Wieser",
   "scripts": {
