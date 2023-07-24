@@ -2,7 +2,8 @@
 
 A decentralized ERC20 Token Exchange, using the concept of a Constant Product Market Maker.
 
-Swaparoo has "Pools" for different ERC20 token pairs (e.g. WETH-DAI):
+*How it works:*
+- Swaparoo has "Pools" for different ERC20 token pairs (e.g. WETH-DAI):
 - Users can *provide tokens* to a pool, earning dividends as reward 
 - Users can *trade* one token for another on a pool (e.g. WETH for DAI, or vice versa).
 - Trading costs a small fee, which funds the dividends
@@ -10,6 +11,12 @@ Swaparoo has "Pools" for different ERC20 token pairs (e.g. WETH-DAI):
 
 The cool thing is, that these pools are based on quite simple math formulas, and no complex logic is needed like pricing oracles.
 The exact type of math used as basis is a special form of a [Constant Function Market Maker](https://en.wikipedia.org/wiki/Constant_function_market_maker) called *Constant Product Market Maker*.
+
+*Technical Details:*
+
+The smart contracts are written in Solidity for the Ethereum blockchain, using Truffle as a framework for developing & testing the contracts.
+The frontend uses Angular & Web3.js. 
+Typechain is used to generate typescript types for the truffle testcases and frontend.
 
 ## Getting started
 
@@ -66,13 +73,14 @@ The frontend should then be up and running at `localhost:4200`. It may take a fe
 - A core idea of this contract is, that the product of the amount of tokens must always stay constant during trades:
   - `amountTokenA * amountTokenB = k`
   - this is called constant product market maker
-  - the natur of this forumlar can emulate supply and demand quite well. The more token a user wants to buy, the more expensive the tokens get.
+  - the nature of this format can emulate supply and demand quite well. The more token a user wants to buy, the more expensive the tokens get.
 - Trade:
   - `Users` can swap one token for the other one (e.g. swap 2 WETH for 1000 DAI)
   - Swapping costs fees, which are distributed proportional to `Users` that provide liquidity 
 - Provide Liquidity:
   - `Users` can provide tokens as liquidity to the contract
   - they get special "liquidity tokens" back in return
+  - the ratio of the amount of tokens provided must equal of the ratio of the tokens already in the pool 
 
 *DualDividendToken*:
 - is a ERC20 token that yields dividends in 2 assets
@@ -83,9 +91,9 @@ There are also some dummy contracts for easier development & testing in `contrac
 
 ## Testcases
 
-Testcases for the smart contracts are definined in the folder `smart-contracts/test`.
+We use truffle for the unit tests for the smart contracts. The tests are defined in the folder `smart-contracts/test`.
 
-You can run all testcases with `npm run test`, or by specifing a file e.g. `npm run test test/SwaparooCore.js`.
+You can run all testcases with `npm run test`, or by specifying a file e.g. `npm run test test/SwaparooCore.js`.
 
 ## Frontend
 
@@ -107,18 +115,21 @@ In the section "User Balance" the ether and amounts of the ERC20 tokens of the u
 
 ## Good to know
 
-After changing a smart contract, you can simply execute `npm run postinstall` in `smart-contracts` directory, to compile the contracts and copy the abi files into the frontend folder.
+After changing a smart contract, you can simply execute `npm run postinstall` in `smart-contracts` directory, to compile the contracts, and copy the generated abi files & type declarations into frontend folder
+
+The exact version of Node used for the project was v18.16.0.
 
 ## Attribution
 
 This project was originally created as part of a lecture at the *Vienna University of Technology*.
 
-This project uses some external resources and inspirations:
+It uses the following sources as main inspirations:
 
 - [Theory of Constant Product Market Maker (Video)](https://www.youtube.com/watch?v=QNPyFs8Wybk)
 - [Dividend yielding tokens (Article)](https://weka.medium.com/dividend-bearing-tokens-on-ethereum-42d01c710657)
 
-The following sources can also be interesting to look at:
+Other interesting and helpful resources:
 
 - [Uniswap V2 Contracts](https://github.com/Uniswap/v2-core/tree/master/contracts)
 - [AAVE V2 Contracts](https://github.com/aave/protocol-v2/blob/master/contracts/protocol/lendingpool/LendingPool.sol)
+- [Typescript with Truffle & React](https://github.com/mseemann/truffle-react-typescript)
