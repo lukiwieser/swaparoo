@@ -1,7 +1,7 @@
 <h1>Swaparoo</h1>
 
 <div *ngIf="!swaparooCoreState?.address">
-    <form [formGroup]="form" (ngSubmit)="submit()">
+    <form [formGroup]="form" (ngSubmit)="setSwaparooCoreAddress()">
         <fieldset style="display: inline-block">
             <legend style="font-weight: bold;">Connect SwaparooCore</legend>
 
@@ -13,8 +13,8 @@
 </div>
 
 <div *ngIf="swaparooCoreState?.address" >
-    <p>Connected SwaparooCore</p>
-    <p>{{swaparooCoreState?.address}}</p>
+    <p>Connected SwaparooCore: {{swaparooCoreState?.address}}</p>
+    <button (click)="clearSwaparooCoreAddress()">Disconnect</button>
 
     <hr>
 

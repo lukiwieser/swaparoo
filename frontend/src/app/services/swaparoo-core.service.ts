@@ -43,8 +43,13 @@ export class SwaparooCoreService {
     await this.updateSwaparooCore(address);
     this.saveToLocalStorage();
   }
-  
 
+  public clearSwaparooCoreAddress() {
+    this.swaparooCoreStateSubject.next(initalSwaparooCoreState);
+    this.swaparooCore = undefined;
+    localStorage.removeItem("swaparoo-core-address");
+  }
+  
   private saveToLocalStorage() {
     const swaparooCoreStorage: SwaparooCoreStorage = {
       address: this.swaparooCoreStateSubject.value.address

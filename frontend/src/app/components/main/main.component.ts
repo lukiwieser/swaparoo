@@ -64,7 +64,7 @@ export class MainComponent implements OnInit {
     this.userService.usersState$.subscribe(state => this.usersState = state);
   }
 
-  public async submit() {
+  public async setSwaparooCoreAddress() {
     const swaparooCoreAddress = this.form.get('swaparoo_core_address')?.value;
 
     console.log("btn pressed: " + swaparooCoreAddress);
@@ -73,6 +73,11 @@ export class MainComponent implements OnInit {
     }
 
     await this.swaparooCoreService.setSwaparooCoreAddress(swaparooCoreAddress);
+    this.form.reset();
+  }
+
+  public async clearSwaparooCoreAddress() {
+    this.swaparooCoreService.clearSwaparooCoreAddress();
   }
 
   public async addUser() {
