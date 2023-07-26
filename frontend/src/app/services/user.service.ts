@@ -84,7 +84,16 @@ export class UserService {
     }
     this.usersStateSubject.next(newState);
 
-    // save to local storage
+    this.saveAddressesToLocalStorage();
+  }
+
+  public async removeUser(address: string) {
+    const usersState = this.usersStateSubject.value;
+    usersState.users = usersState.users.filter(user => user.address !== address);
+    if(usersState.selectedUserAddress === address) {
+      usersState.selectedUserAddress = usersState.users.length > 0 ? usersState.users[0].address : undefined;
+    }
+    this.usersStateSubject.next(usersState);
     this.saveAddressesToLocalStorage();
   }
 
@@ -135,16 +144,7 @@ export class UserService {
   private async updateUserState() {
     const usersState = this.usersStateSubject.value;
     for(const user of usersState.users) {
-      const ether = await this.getEtherBalanceInWei(user.address);
-      const isOwner = await this.swaparooCoreService.isOwner(user.address);
-      const tokenBalances = await this.getTokenBalances(user.address);
-      const updatedUser : User = {
-        address: user.address,
-        ether,
-        isOwner,
-        tokenBalances
-      };
-
+      const updatedUser : User = await this.loadUserFromAddress(user.address);
       const index = usersState.users.findIndex(u => u.address === user.address);
       usersState.users[index] = updatedUser;
     }

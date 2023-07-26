@@ -84,6 +84,10 @@ export class MainComponent implements OnInit {
     this.addUserForm.reset();
   }
 
+  public async removeUser(user: User) {
+    this.userService.removeUser(user.address);
+  }
+
   public async addPool() {
     if(this.addPoolForm.invalid) return;
     if(!this.usersState?.selectedUserAddress) return;

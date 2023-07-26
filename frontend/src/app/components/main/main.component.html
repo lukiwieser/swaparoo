@@ -37,6 +37,7 @@
             <button (click)="selectUser(user)" [disabled]="user.address===selectedUser?.address">select</button>
             {{user.address}}
             <span *ngIf="user.isOwner===true">(Owner)</span>
+            <button (click)="removeUser(user)">remove</button>
         </div>
     </div>
 
