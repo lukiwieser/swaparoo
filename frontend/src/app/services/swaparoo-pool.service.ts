@@ -88,6 +88,7 @@ export class SwaparooPoolService {
   }
 
   private async addPool(address: string) {
+    console.log("addPool()");
     const pool = await this.getPoolFromAddress(address);
     const newState = this.swaparooPoolStateSubject.value;
 

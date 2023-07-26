@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SwaparooPoolsState} from 'src/app/models/SwaparooPoolsState';
 import {SwaparooCoreState} from 'src/app/models/SwaparooCoreState';
@@ -9,13 +9,15 @@ import {UserService} from 'src/app/services/user.service';
 import {Web3Service} from 'src/app/services/web3.service';
 import { User } from 'src/app/models/User';
 import { Globals } from '../../globals/globals';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
-export class MainComponent implements OnInit {
+export class MainComponent implements OnInit, OnDestroy {
+  private componentDestroyed$ = new Subject<void>();
   // forms:
   form: FormGroup;
   addUserForm: FormGroup;
@@ -59,9 +61,22 @@ export class MainComponent implements OnInit {
   async ngOnInit() {
     await this.web3Service.connect(this.globals.ethereumUri);
 
-    this.swaparooCoreService.swaparooCoreState$.subscribe(state => this.swaparooCoreState = state);
-    this.swaparooPoolService.swaparooPoolState$.subscribe(state => this.swaparooPoolsState = state);
-    this.userService.usersState$.subscribe(state => this.usersState = state);
+    this.swaparooCoreService.swaparooCoreState$
+      .pipe(takeUntil(this.componentDestroyed$))
+      .subscribe(state => this.swaparooCoreState = state);
+
+    this.swaparooPoolService.swaparooPoolState$
+      .pipe(takeUntil(this.componentDestroyed$))
+      .subscribe(state => this.swaparooPoolsState = state);
+
+    this.userService.usersState$
+      .pipe(takeUntil(this.componentDestroyed$))
+      .subscribe(state => this.usersState = state);
+  }
+
+  async ngOnDestroy() {
+    this.componentDestroyed$.next();
+    this.componentDestroyed$.complete();
   }
 
   public async setSwaparooCoreAddress() {

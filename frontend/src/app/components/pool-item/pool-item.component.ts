@@ -19,7 +19,6 @@ export class PoolItemComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     this.selectedUser = changes['selectedUser']?.currentValue;
-    console.log(changes);
   }
 
   constructor(
