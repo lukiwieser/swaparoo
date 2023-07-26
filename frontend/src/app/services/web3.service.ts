@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import Web3 from 'web3';
 
 @Injectable({
@@ -7,10 +8,12 @@ import Web3 from 'web3';
 export class Web3Service {
 
   private _web3!: Web3;
-  private _isConnected = false;
+
+  private readonly _isConnected$ = new BehaviorSubject<boolean>(false);
+  public readonly isConnected$ = this._isConnected$.asObservable();
 
   public get isConnected() : boolean {
-    return this._isConnected;
+    return this._isConnected$.value;
   }
 
   public get web3() {
@@ -21,13 +24,18 @@ export class Web3Service {
     try {
       const provider = new Web3.providers.WebsocketProvider(host);
       this._web3 = new Web3(provider);
-      this._isConnected = await this.web3.eth.net.isListening();
-      if(this._isConnected) {
+
+      const result = await this.web3.eth.net.isListening();
+      this._isConnected$.next(result);
+      
+      if(result) {
         console.log("connected!");
+      } else {
+        console.log("not connected!");
       }
     } catch (e) {
       console.error("Connection failed with error: ", e);
-      this._isConnected = false;
+      this._isConnected$.next(false);
     }
   }
 }

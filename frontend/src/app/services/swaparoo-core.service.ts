@@ -11,6 +11,10 @@ import {OwnerAdded, OwnerRemoved, PoolAdded} from 'src/contracts/web3-types/Swap
 
 const SwaparooCoreAbi = SwaparooCoreJson.abi as AbiItem[];
 
+interface SwaparooCoreStorage {
+  address: string
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -24,15 +28,41 @@ export class SwaparooCoreService {
   constructor(private web3service: Web3Service) {
     this.swaparooCoreStateSubject = new BehaviorSubject<SwaparooCoreState>(initalSwaparooCoreState);
     this.swaparooCoreState$ = this.swaparooCoreStateSubject.asObservable();
+
+    this.web3service.isConnected$.subscribe(isConnected => {
+      if(isConnected) {
+        this.loadFromLocalStorage();
+      }
+    });
   }
 
   public async setSwaparooCoreAddress(address: string) {
     if(!await this.isContractDeployed(address)) {
       return;
     }
+    await this.updateSwaparooCore(address);
+    this.saveToLocalStorage();
+  }
+  
 
+  private saveToLocalStorage() {
+    const swaparooCoreStorage: SwaparooCoreStorage = {
+      address: this.swaparooCoreStateSubject.value.address
+    };
+    localStorage.setItem("swaparoo-core-address", JSON.stringify(swaparooCoreStorage));
+  }
+
+  private async loadFromLocalStorage() {
+    const swaparooCoreStorageString = localStorage.getItem("swaparoo-core-address");
+    if(!swaparooCoreStorageString) {
+      return;
+    }
+    const swaparooCoreStorage = JSON.parse(swaparooCoreStorageString) as SwaparooCoreStorage;
+    await this.updateSwaparooCore(swaparooCoreStorage.address);
+  }
+
+  private async updateSwaparooCore(address: string) {
     this.swaparooCore = new this.web3service.web3.eth.Contract(SwaparooCoreAbi, address) as unknown as SwaparooCore;
-
     const ether = this.web3service.web3.utils.fromWei(await this.web3service.web3.eth.getBalance(address), "ether");
     const swaparooCoreState: SwaparooCoreState = { address, ether };
     this.swaparooCoreStateSubject.next(swaparooCoreState);
