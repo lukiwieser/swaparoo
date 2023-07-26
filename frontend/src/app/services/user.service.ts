@@ -13,6 +13,12 @@ import { TokenBalance } from '../models/TokenBalance';
 const SwaparooCoreAbi = ERC20Json.abi as AbiItem[];
 
 
+interface UserAddressesState {
+  userAddresses: string[],
+  selectedUserAddress: string
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -31,17 +37,32 @@ export class UserService {
 
     this.swaparooCoreService.swaparooCoreState$.subscribe(async (state) => {
       if(state.address) {
-        await this.init();
+        await this.loadUsersFromLocalStorage();
+        this.listenToBlockUpdates();
       }
     });
     this.swaparooPoolService.swaparooPoolState$.subscribe(async () => {
-      console.log("update user state cause pools changed");
       await this.updateUserState();
     });
   }
 
-  private async init() {
-    this.listenToBlockUpdates();
+  private async loadUsersFromLocalStorage() {
+    const userAddressesStateString = localStorage.getItem("user-addresses-state");
+    if(!userAddressesStateString) {
+      return;
+    }
+
+    const userAddressesState = JSON.parse(userAddressesStateString) as UserAddressesState;
+
+    const userPromises = userAddressesState.userAddresses.map(address => this.loadUserFromAddress(address));
+    const users = await Promise.all(userPromises);
+
+    const state: UsersState = {
+      ...this.usersStateSubject.value,
+      users,
+      selectedUserAddress: userAddressesState.selectedUserAddress
+    };
+    this.usersStateSubject.next(state);
   }
 
   public async addUser(address: string) {
@@ -53,15 +74,7 @@ export class UserService {
     }
 
     // create object for user
-    const ether = await this.getEtherBalanceInWei(address);
-    const isOwner = await this.swaparooCoreService.isOwner(address);
-    const tokenBalances = await this.getTokenBalances(address);
-    const newUser: User = {
-      address,
-      isOwner,
-      ether,
-      tokenBalances
-    };
+    const newUser = await this.loadUserFromAddress(address);
 
     // update state & set selected-user if neccessary
     const newState = this.usersStateSubject.value;
@@ -70,12 +83,37 @@ export class UserService {
       newState.selectedUserAddress = newState.users[0].address;
     }
     this.usersStateSubject.next(newState);
+
+    // save to local storage
+    this.saveAddressesToLocalStorage();
+  }
+
+  private async loadUserFromAddress(address: string): Promise<User> {
+    const ether = await this.getEtherBalanceInWei(address);
+    const isOwner = await this.swaparooCoreService.isOwner(address);
+    const tokenBalances = await this.getTokenBalances(address);
+    return {
+      address,
+      isOwner,
+      ether,
+      tokenBalances
+    } as User;
+  }
+
+  private saveAddressesToLocalStorage() {
+    const state = this.usersStateSubject.value;
+    const userAddresses = state.users.map(user => user.address);
+    const selectedUserAddress = state.selectedUserAddress;
+
+    const userAddressesState = { userAddresses, selectedUserAddress } as UserAddressesState;
+    localStorage.setItem("user-addresses-state", JSON.stringify(userAddressesState));
   }
 
   public selectUser(user: User) {
     const newState = this.usersStateSubject.value;
     newState.selectedUserAddress = user.address;
     this.usersStateSubject.next(newState);
+    this.saveAddressesToLocalStorage();
   }
 
   private async getEtherBalanceInWei(address: string) : Promise<string> {
