@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// HOW DIVIDENDS ARE STORED:
 ///
 /// The dividends of a single user can be represented as a running sum:
-/// D_1 * (TS_1 / B_1) + ... + D_n * (TS_n * B_n)
+/// D_1 * (B_1 / TS_1) + ... + D_n * (B_n / TS_n)
 /// 
 /// - D_n: The nth received dividend.
 /// - B_n: The user's balance of DualDividendToken at the time of receiving dividend n.
@@ -28,6 +28,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// 
 /// - totalDividend: All dividends received so far: (D_1 / TS_1) + ...+ (D_n / TS_n).
 /// - lastDividend: The dividends where the user last paid out.
+/// 
+/// We have to update a user's dividends every time their balance B changes,
+/// since we assume that the balance B stays the same during the receiving of tokens.
 /// 
 /// TODO: The contract does not account for lost tokens due to rounding
 contract DualDividendToken is ERC20 {
